@@ -2,7 +2,7 @@
   <div class="phase-group">
     <div class="phase-header" @click="$emit('toggle')">
       <span class="phase-dot" :style="{ background: phase.color, color: phase.color }" />
-      <span class="phase-label">{{ phase.label }}</span>
+      <span class="phase-label">{{ phaseLabel }}</span>
       <span class="phase-chevron" :class="{ open: !collapsed }">›</span>
     </div>
 
@@ -18,16 +18,18 @@
         @click="$emit('navigate', lesson.id)"
       >
         <span class="lb-check">✓</span>
-        <span class="lb-title">{{ lesson.title }}</span>
+        <span class="lb-title">{{ lessonLabel(lesson.id, lesson.title) }}</span>
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { IPhase } from '@/modules/course/interfaces/IPhase.ts'
 
-defineProps<{
+const props = defineProps<{
   phase: IPhase
   collapsed: boolean
   activeLessonId: string | undefined
@@ -38,4 +40,16 @@ defineEmits<{
   toggle: []
   navigate: [lessonId: string]
 }>()
+
+const { t, te } = useI18n()
+
+const phaseLabel = computed(() => {
+  const key = `phases.${props.phase.id}`
+  return te(key) ? t(key) : props.phase.label
+})
+
+function lessonLabel(id: string, fallback: string): string {
+  const key = `lessons.${id}`
+  return te(key) ? t(key) : fallback
+}
 </script>

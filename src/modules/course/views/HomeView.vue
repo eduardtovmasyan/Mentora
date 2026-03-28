@@ -5,49 +5,50 @@
     <div class="home-content">
       <div class="home-eyebrow">
         <span class="eyebrow-dot" />
-        PHP Backend · Cloud Engineering · {{ courseStore.meta.duration }}
+        {{ t('home.eyebrow', { duration: courseStore.meta.duration }) }}
       </div>
 
       <h1 class="home-title">
-        <span class="c1">PHP</span> Backend<br />&amp; <span class="c2">Cloud</span> Engineering
+        <span class="c1">{{ t('home.title_php') }}</span> {{ t('home.title_backend') }}<br />
+        {{ t('home.title_and') }} <span class="c2">{{ t('home.title_cloud') }}</span> {{ t('home.title_eng') }}
       </h1>
 
-      <p class="home-sub">{{ courseStore.meta.description }}</p>
+      <p class="home-sub">{{ t('home.subtitle') }}</p>
 
       <div class="home-cta">
         <button class="btn-primary" @click="onContinue">
-          {{ stats.done > 0 ? 'Continue Learning' : 'Start Learning' }}
-          <span class="btn-arrow">→</span>
+          {{ stats.done > 0 ? t('home.cta_continue') : t('home.cta_start') }}
+          <span class="btn-arr">→</span>
         </button>
-        <button v-if="stats.done > 0" class="btn-secondary" @click="scrollToPhases">
-          View all phases
+        <button v-if="stats.done > 0" class="btn-ghost" @click="scrollToPhases">
+          {{ t('home.cta_browse') }}
         </button>
       </div>
 
       <div class="home-stats">
         <div class="hs">
           <div class="hs-n">{{ courseStore.totalLessons }}</div>
-          <div class="hs-l">Lessons</div>
+          <div class="hs-l">{{ t('home.stat_lessons') }}</div>
         </div>
         <div class="hs">
           <div class="hs-n">{{ courseStore.phases.length }}</div>
-          <div class="hs-l">Phases</div>
+          <div class="hs-l">{{ t('home.stat_phases') }}</div>
         </div>
         <div class="hs">
           <div class="hs-n">{{ stats.done }}</div>
-          <div class="hs-l">Completed</div>
+          <div class="hs-l">{{ t('home.stat_completed') }}</div>
         </div>
         <div class="hs">
           <div class="hs-n">{{ stats.pct }}%</div>
-          <div class="hs-l">Progress</div>
+          <div class="hs-l">{{ t('home.stat_progress') }}</div>
         </div>
         <div class="hs">
           <div class="hs-n">22</div>
-          <div class="hs-l">Weeks</div>
+          <div class="hs-l">{{ t('home.stat_weeks') }}</div>
         </div>
       </div>
 
-      <div ref="phasesRef" class="section-label">Learning Path</div>
+      <div ref="phasesRef" class="section-label">{{ t('home.path_label') }}</div>
 
       <div class="phase-cards">
         <PhaseCard
@@ -65,12 +66,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { CourseRoute } from '@/modules/course/enums/CourseRoute.ts'
 import { useCourseStore } from '@/modules/course/stores/course.store.ts'
 import { useProgressStore } from '@/modules/progress/stores/progress.store.ts'
 import type { IPhase } from '@/modules/course/interfaces/IPhase.ts'
 import PhaseCard from '@/modules/course/components/phase-card/PhaseCard.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 const courseStore = useCourseStore()
 const progressStore = useProgressStore()

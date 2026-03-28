@@ -10,8 +10,17 @@
       </div>
     </div>
 
+    <!-- Non-English content notice -->
+    <div v-if="locale !== 'en'" class="content-lang-notice">
+      <span class="cln-icon">🌐</span>
+      <div>
+        <strong>{{ t('lesson.content_notice') }}</strong>
+        <span>{{ t('lesson.content_notice_sub') }}</span>
+      </div>
+    </div>
+
     <div v-if="lesson.seniorExpectations?.length" class="senior-box">
-      <div class="senior-title">Senior-Level Expectations</div>
+      <div class="senior-title">{{ t('lesson.senior_title') }}</div>
       <div class="skill-tags">
         <span v-for="exp in lesson.seniorExpectations" :key="exp" class="stag">{{ exp }}</span>
       </div>
@@ -21,27 +30,27 @@
 
     <div class="mark-done-wrap">
       <div class="mark-done-text">
-        <h4>{{ isDone ? 'Lesson complete!' : 'Done with this lesson?' }}</h4>
-        <p>{{ isDone ? 'Great work. Move on to the next topic.' : 'Mark it complete to track your progress.' }}</p>
+        <h4>{{ isDone ? t('lesson.complete_done_h') : t('lesson.complete_idle_h') }}</h4>
+        <p>{{ isDone ? t('lesson.complete_done_p') : t('lesson.complete_idle_p') }}</p>
       </div>
       <button
         class="mark-done-btn"
         :class="{ active: isDone }"
         @click="progressStore.toggle(lessonId)"
       >
-        {{ isDone ? '✓  Completed' : 'Mark as Complete' }}
+        {{ isDone ? t('lesson.mark_done') : t('lesson.mark_idle') }}
       </button>
     </div>
 
     <div class="lesson-nav">
       <button v-if="neighbors.prev" class="ln-btn" @click="go(neighbors.prev.id)">
-        <span class="ln-lbl">← Previous</span>
-        <span class="ln-title">{{ neighbors.prev.title }}</span>
+        <span class="ln-lbl">{{ t('lesson.prev') }}</span>
+        <span class="ln-title">{{ lessonTitle(neighbors.prev.id, neighbors.prev.title) }}</span>
       </button>
       <span v-else />
       <button v-if="neighbors.next" class="ln-btn ln-btn-right" @click="go(neighbors.next.id)">
-        <span class="ln-lbl">Next →</span>
-        <span class="ln-title">{{ neighbors.next.title }}</span>
+        <span class="ln-lbl">{{ t('lesson.next') }}</span>
+        <span class="ln-title">{{ lessonTitle(neighbors.next.id, neighbors.next.title) }}</span>
       </button>
     </div>
   </div>
@@ -50,17 +59,17 @@
   <div v-else class="content-inner">
     <div class="coming-soon">
       <div class="coming-soon-icon">🚧</div>
-      <h2>Coming Soon</h2>
-      <p><strong>{{ lessonTitle }}</strong> is being written. Check back soon!</p>
-      <div class="lesson-nav" style="width: 100%; max-width: 520px; margin-top: 28px;">
+      <h2>{{ t('lesson.coming_soon_title') }}</h2>
+      <p>{{ t('lesson.coming_soon_sub', { title: currentLessonTitle }) }}</p>
+      <div class="lesson-nav" style="width:100%;max-width:520px;margin-top:28px">
         <button v-if="neighbors.prev" class="ln-btn" @click="go(neighbors.prev.id)">
-          <span class="ln-lbl">← Previous</span>
-          <span class="ln-title">{{ neighbors.prev.title }}</span>
+          <span class="ln-lbl">{{ t('lesson.prev') }}</span>
+          <span class="ln-title">{{ lessonTitle(neighbors.prev.id, neighbors.prev.title) }}</span>
         </button>
         <span v-else />
         <button v-if="neighbors.next" class="ln-btn ln-btn-right" @click="go(neighbors.next.id)">
-          <span class="ln-lbl">Next →</span>
-          <span class="ln-title">{{ neighbors.next.title }}</span>
+          <span class="ln-lbl">{{ t('lesson.next') }}</span>
+          <span class="ln-title">{{ lessonTitle(neighbors.next.id, neighbors.next.title) }}</span>
         </button>
       </div>
     </div>
@@ -70,6 +79,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import hljs from 'highlight.js'
 import { CourseRoute } from '@/modules/course/enums/CourseRoute.ts'
 import { useCourseStore } from '@/modules/course/stores/course.store.ts'
@@ -77,6 +87,7 @@ import { useProgressStore } from '@/modules/progress/stores/progress.store.ts'
 
 const route = useRoute()
 const router = useRouter()
+const { t, te, locale } = useI18n()
 const courseStore = useCourseStore()
 const progressStore = useProgressStore()
 
@@ -87,10 +98,17 @@ const lesson = computed(() => courseStore.getLesson(lessonId.value))
 const isDone = computed<boolean>(() => progressStore.isDone(lessonId.value))
 const neighbors = computed(() => courseStore.neighbors(lessonId.value))
 
-const lessonTitle = computed<string>(() => {
-  const phase = courseStore.phaseOf(lessonId.value)
-  return phase?.lessons.find((l) => l.id === lessonId.value)?.title ?? lessonId.value
+const currentLessonTitle = computed<string>(() => {
+  return lessonTitle(
+    lessonId.value,
+    courseStore.phaseOf(lessonId.value)?.lessons.find((l) => l.id === lessonId.value)?.title ?? lessonId.value
+  )
 })
+
+function lessonTitle(id: string, fallback: string): string {
+  const key = `lessons.${id}`
+  return te(key) ? t(key) : fallback
+}
 
 hljs.configure({ ignoreUnescapedHTML: true })
 
@@ -103,8 +121,7 @@ function highlight(): void {
 }
 
 function scrollToTop(): void {
-  const el = document.querySelector('.content')
-  if (el) el.scrollTop = 0
+  document.querySelector('.content')?.scrollTo({ top: 0 })
 }
 
 function go(id: string): void {
@@ -112,8 +129,5 @@ function go(id: string): void {
 }
 
 onMounted(highlight)
-watch(lessonId, () => {
-  scrollToTop()
-  highlight()
-})
+watch(lessonId, () => { scrollToTop(); highlight() })
 </script>

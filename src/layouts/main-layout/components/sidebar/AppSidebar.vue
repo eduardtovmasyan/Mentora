@@ -15,7 +15,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Search lessons…"
+          :placeholder="t('nav.search')"
           autocomplete="off"
         />
       </div>
@@ -24,9 +24,9 @@
     <!-- Progress -->
     <div class="sb-prog">
       <div class="sb-prog-row">
-        <span class="sb-prog-label">Progress</span>
+        <span class="sb-prog-label">{{ t('nav.progress') }}</span>
         <div class="sb-prog-right">
-          <span class="sb-prog-count">{{ stats.done }}/{{ totalLessons }}</span>
+          <span class="sb-prog-count">{{ stats.done }} {{ t('nav.of') }} {{ totalLessons }}</span>
           <span class="sb-prog-pct">{{ stats.pct }}%</span>
         </div>
       </div>
@@ -49,22 +49,29 @@
       />
     </nav>
 
+    <!-- Language switcher -->
+    <div class="sb-footer">
+      <LangSwitcher />
+    </div>
+
   </aside>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { CourseRoute } from '@/modules/course/enums/CourseRoute.ts'
 import { useCourseStore } from '@/modules/course/stores/course.store.ts'
 import { useProgressStore } from '@/modules/progress/stores/progress.store.ts'
 import type { IPhase } from '@/modules/course/interfaces/IPhase.ts'
 import PhaseGroup from './components/PhaseGroup.vue'
+import LangSwitcher from '@/modules/locale/components/LangSwitcher.vue'
 
 defineProps<{ open: boolean }>()
-
 const emit = defineEmits<{ close: [] }>()
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const courseStore = useCourseStore()

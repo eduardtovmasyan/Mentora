@@ -730,6 +730,60 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 .ln-title { font-size: 13.5px; color: var(--tx); line-height: 1.35; font-weight: 500; position: relative; }
 
+/* ── Sidebar footer / lang switcher ─────────────── */
+.sb-footer {
+  flex-shrink: 0;
+  padding: 12px 18px 16px;
+  border-top: 1px solid rgba(139,92,246,.1);
+}
+
+.lang-switcher {}
+
+.ls-label {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--tx4);
+  margin-bottom: 8px;
+}
+
+.ls-options { display: flex; gap: 6px; }
+
+.ls-btn {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 7px 8px;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--b0);
+  background: transparent;
+  color: var(--tx4); font-size: 11.5px;
+  cursor: pointer; transition: all .2s;
+
+  &:hover { background: var(--surf-1); border-color: var(--b1); color: var(--tx3); }
+
+  &.active {
+    background: rgba(139,92,246,.12);
+    border-color: rgba(139,92,246,.4);
+    color: var(--vio);
+    font-weight: 600;
+  }
+}
+
+.ls-flag { font-size: 13px; }
+.ls-name { font-family: 'DM Mono', monospace; font-size: 10.5px; letter-spacing: .5px; }
+
+/* ── Content language notice ─────────────────────── */
+.content-lang-notice {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px; border-radius: var(--r-sm);
+  background: rgba(245,158,11,.06);
+  border: 1px solid rgba(245,158,11,.2);
+  margin-bottom: 24px;
+
+  .cln-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  strong { font-size: 13px; color: var(--amb); display: block; margin-bottom: 2px; }
+  span   { font-size: 12.5px; color: var(--tx4); }
+}
+
 /* ── Coming soon ─────────────────────────────────── */
 .coming-soon {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
