@@ -86,6 +86,8 @@ const lessonTitle = computed<string>(() => {
   return phase?.lessons.find((l) => l.id === lessonId.value)?.title ?? lessonId.value
 })
 
+hljs.configure({ ignoreUnescapedHTML: true })
+
 function highlight(): void {
   nextTick(() => {
     bodyRef.value?.querySelectorAll('pre code').forEach((el) => {

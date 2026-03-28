@@ -1,1 +1,144 @@
-export default null;
+export default {
+  phase: 'Phase 6 · Security',
+  title: 'OAuth 2.0 & JWT',
+  intro: 'OAuth 2.0 is an authorization framework that lets users grant third-party applications limited access to their accounts without sharing passwords. JWT (JSON Web Tokens) are self-contained tokens used for authentication and API authorization. Together they power SSO, social login, and API security in modern applications.',
+  tags: ['OAuth 2.0', 'Authorization code flow', 'PKCE', 'JWT', 'Refresh tokens', 'OpenID Connect'],
+  seniorExpectations: [
+    'Explain the Authorization Code flow with PKCE (for public clients)',
+    'Implement JWT generation, signing, and verification in PHP',
+    'Design refresh token rotation with revocation support',
+    'Distinguish authentication (who are you) from authorization (what can you do)',
+    'Implement Laravel Sanctum for SPA authentication and Passport for OAuth server',
+  ],
+  body: `
+<h2>OAuth 2.0 Flows</h2>
+<table class="ctable">
+  <thead><tr><th>Flow</th><th>Use case</th><th>Client type</th></tr></thead>
+  <tbody>
+    <tr><td>Authorization Code + PKCE</td><td>Web apps, SPAs, mobile</td><td>Public or confidential</td></tr>
+    <tr><td>Client Credentials</td><td>Machine-to-machine (M2M)</td><td>Confidential (server)</td></tr>
+    <tr><td>Device Code</td><td>TV, CLI, IoT</td><td>Public</td></tr>
+    <tr><td>Implicit (deprecated)</td><td>Old SPAs</td><td>Avoid — use Auth Code + PKCE</td></tr>
+  </tbody>
+</table>
+
+<h2>Authorization Code Flow with PKCE</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-lang">PHP — PKCE generation</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+<pre><code class="language-php">// Step 1: Generate code verifier and challenge
+$codeVerifier  = bin2hex(random_bytes(32)); // 64-char random string
+$codeChallenge = rtrim(strtr(base64_encode(hash('sha256', $codeVerifier, true)), '+/', '-_'), '=');
+
+// Store code verifier in session
+Session::put('pkce_verifier', $codeVerifier);
+
+// Step 2: Redirect to auth server
+$authUrl = 'https://auth.example.com/authorize?' . http_build_query([
+    'response_type'         => 'code',
+    'client_id'             => config('oauth.client_id'),
+    'redirect_uri'          => route('oauth.callback'),
+    'scope'                 => 'openid profile email',
+    'state'                 => csrf_token(), // CSRF protection
+    'code_challenge'        => $codeChallenge,
+    'code_challenge_method' => 'S256',
+]);
+return redirect($authUrl);
+
+// Step 3: Exchange code for tokens (callback)
+function handleCallback(Request $request): void {
+    // Verify state (CSRF)
+    if ($request->state !== session('_token')) abort(403);
+
+    $response = Http::post('https://auth.example.com/token', [
+        'grant_type'    => 'authorization_code',
+        'code'          => $request->code,
+        'redirect_uri'  => route('oauth.callback'),
+        'client_id'     => config('oauth.client_id'),
+        'code_verifier' => session('pkce_verifier'), // proves possession
+    ]);
+    $tokens = $response->json();
+    // Store access_token, refresh_token securely
+}
+</code></pre>
+</div>
+
+<h2>JWT Structure & Verification</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-lang">PHP — JWT manual implementation</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+<pre><code class="language-php">function jwtSign(array $payload, string $secret): string {
+    $header  = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
+    $payload = base64url_encode(json_encode($payload));
+    $sig     = base64url_encode(hash_hmac('sha256', "{$header}.{$payload}", $secret, true));
+    return "{$header}.{$payload}.{$sig}";
+}
+
+function jwtVerify(string $token, string $secret): array {
+    [$header, $payload, $sig] = explode('.', $token);
+    $expected = base64url_encode(hash_hmac('sha256', "{$header}.{$payload}", $secret, true));
+
+    if (!hash_equals($expected, $sig)) throw new \RuntimeException('Invalid JWT signature');
+
+    $claims = json_decode(base64url_decode($payload), true);
+    if ($claims['exp'] < time()) throw new \RuntimeException('JWT expired');
+
+    return $claims;
+}
+
+// In production use firebase/php-jwt or lcobucci/jwt library
+// Issue token
+$token = jwtSign([
+    'sub'   => $user->id,
+    'email' => $user->email,
+    'roles' => ['user'],
+    'iat'   => time(),
+    'exp'   => time() + 3600, // 1 hour
+], config('app.jwt_secret'));
+</code></pre>
+</div>
+
+<h2>Refresh Token Rotation</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-lang">PHP — Secure refresh token handling</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+<pre><code class="language-php">class TokenService {
+    public function refresh(string $refreshToken): array {
+        $stored = RefreshToken::where('token', hash('sha256', $refreshToken))
+            ->where('expires_at', '>', now())
+            ->where('revoked', false)
+            ->firstOrFail();
+
+        // Rotation: revoke old token, issue new pair
+        $stored->update(['revoked' => true]);
+
+        $newRefresh = bin2hex(random_bytes(32));
+        RefreshToken::create([
+            'user_id'    => $stored->user_id,
+            'token'      => hash('sha256', $newRefresh),
+            'expires_at' => now()->addDays(30),
+        ]);
+
+        return [
+            'access_token'  => $this->issueAccessToken($stored->user_id),
+            'refresh_token' => $newRefresh, // send plain token to client
+        ];
+    }
+}
+</code></pre>
+</div>
+
+<div class="callout callout-tip">
+  <div class="callout-title">Laravel Sanctum vs Passport</div>
+  <p><strong>Sanctum</strong>: simple token auth for SPAs and mobile apps. No full OAuth server. Use for first-party clients. <strong>Passport</strong>: full OAuth 2.0 server implementation. Use when you need to authorize third-party applications (like GitHub OAuth apps). Both use Laravel's guard system.</p>
+</div>
+
+<div class="keypoints">
+  <div class="keypoints-title">Key Points to Remember</div>
+  <ul>
+    <li>Always use Authorization Code + PKCE for public clients (SPAs, mobile) — never implicit flow</li>
+    <li>JWT: verify signature AND expiry; use RS256 (asymmetric) for multi-service environments</li>
+    <li>Refresh tokens: store hashed, rotate on use, revoke on suspicious reuse detection</li>
+    <li>Never store JWTs in localStorage (XSS risk) — use httpOnly secure cookies for web apps</li>
+    <li>OpenID Connect = OAuth 2.0 + identity layer (id_token with user claims)</li>
+  </ul>
+</div>
+`,
+};
