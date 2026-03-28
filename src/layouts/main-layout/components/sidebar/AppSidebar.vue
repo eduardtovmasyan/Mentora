@@ -42,7 +42,6 @@ import SidebarProgress from './components/SidebarProgress.vue'
 import PhaseGroup from './components/PhaseGroup.vue'
 
 defineProps<{ open: boolean }>()
-defineEmits<{ close: [] }>()
 
 const route = useRoute()
 const router = useRouter()
@@ -70,7 +69,10 @@ function togglePhase(id: string): void {
   }
 }
 
+const emit = defineEmits<{ close: [] }>()
+
 function navigate(lessonId: string): void {
   router.push({ name: CourseRoute.Lesson, params: { lessonId } })
+  if (window.innerWidth <= 768) emit('close')
 }
 </script>
