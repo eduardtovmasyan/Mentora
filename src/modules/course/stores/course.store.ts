@@ -2,8 +2,13 @@ import { defineStore } from 'pinia'
 import { meta, phases } from '@/modules/course/data/php-backend-cloud/Index.ts'
 import type { ICourseStoreState } from './interfaces/ICourseStoreState.ts'
 import type { ILessonContent } from '@/modules/course/interfaces/ILessonContent.ts'
+import type { ILessonLocale } from '@/modules/course/interfaces/ILessonLocale.ts'
 import type { ILesson } from '@/modules/course/interfaces/ILesson.ts'
 import type { IPhase } from '@/modules/course/interfaces/IPhase.ts'
+import ruLocale from '@/modules/course/data/php-backend-cloud/locales/ru.ts'
+import hyLocale from '@/modules/course/data/php-backend-cloud/locales/hy.ts'
+
+const localeOverlays: Record<string, Record<string, ILessonLocale>> = { ru: ruLocale, hy: hyLocale }
 
 const lessonModules = import.meta.glob(
   '../data/php-backend-cloud/lessons/*.js',
@@ -35,8 +40,12 @@ export const useCourseStore = defineStore('course', {
 
     getLesson:
       (state) =>
-      (id: string): ILessonContent | null =>
-        state.lessons[id] ?? null,
+      (id: string, locale = 'en'): ILessonContent | null => {
+        const base = state.lessons[id] ?? null
+        if (!base || locale === 'en') return base
+        const overlay = localeOverlays[locale]?.[id]
+        return overlay ? { ...base, ...overlay } : base
+      },
 
     hasContent:
       (state) =>

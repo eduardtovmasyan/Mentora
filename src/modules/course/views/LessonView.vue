@@ -84,6 +84,7 @@ import hljs from 'highlight.js'
 import { CourseRoute } from '@/modules/course/enums/CourseRoute.ts'
 import { useCourseStore } from '@/modules/course/stores/course.store.ts'
 import { useProgressStore } from '@/modules/progress/stores/progress.store.ts'
+import { currentLocale } from '@/i18n/index.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -94,7 +95,7 @@ const progressStore = useProgressStore()
 const bodyRef = ref<HTMLElement | null>(null)
 
 const lessonId = computed<string>(() => route.params.lessonId as string)
-const lesson = computed(() => courseStore.getLesson(lessonId.value))
+const lesson = computed(() => courseStore.getLesson(lessonId.value, currentLocale.value))
 const isDone = computed<boolean>(() => progressStore.isDone(lessonId.value))
 const neighbors = computed(() => courseStore.neighbors(lessonId.value))
 
