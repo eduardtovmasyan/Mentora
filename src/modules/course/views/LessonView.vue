@@ -19,13 +19,19 @@
 
     <div ref="bodyRef" class="lesson-body" v-html="lesson.body" />
 
-    <button
-      class="mark-done-btn"
-      :class="{ active: isDone }"
-      @click="progressStore.toggle(lessonId)"
-    >
-      {{ isDone ? '✓  Completed' : 'Mark as Complete' }}
-    </button>
+    <div class="mark-done-wrap">
+      <div class="mark-done-text">
+        <h4>{{ isDone ? 'Lesson complete!' : 'Done with this lesson?' }}</h4>
+        <p>{{ isDone ? 'Great work. Move on to the next topic.' : 'Mark it complete to track your progress.' }}</p>
+      </div>
+      <button
+        class="mark-done-btn"
+        :class="{ active: isDone }"
+        @click="progressStore.toggle(lessonId)"
+      >
+        {{ isDone ? '✓  Completed' : 'Mark as Complete' }}
+      </button>
+    </div>
 
     <div class="lesson-nav">
       <button v-if="neighbors.prev" class="ln-btn" @click="go(neighbors.prev.id)">
@@ -46,7 +52,7 @@
       <div class="coming-soon-icon">🚧</div>
       <h2>Coming Soon</h2>
       <p><strong>{{ lessonTitle }}</strong> is being written. Check back soon!</p>
-      <div class="lesson-nav" style="width: 100%; max-width: 520px">
+      <div class="lesson-nav" style="width: 100%; max-width: 520px; margin-top: 28px;">
         <button v-if="neighbors.prev" class="ln-btn" @click="go(neighbors.prev.id)">
           <span class="ln-lbl">← Previous</span>
           <span class="ln-title">{{ neighbors.prev.title }}</span>
@@ -96,10 +102,18 @@ function highlight(): void {
   })
 }
 
+function scrollToTop(): void {
+  const el = document.querySelector('.content')
+  if (el) el.scrollTop = 0
+}
+
 function go(id: string): void {
   router.push({ name: CourseRoute.Lesson, params: { lessonId: id } })
 }
 
 onMounted(highlight)
-watch(lessonId, highlight)
+watch(lessonId, () => {
+  scrollToTop()
+  highlight()
+})
 </script>

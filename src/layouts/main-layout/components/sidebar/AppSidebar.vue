@@ -2,13 +2,14 @@
   <aside class="sidebar" :class="{ open: open }">
     <div class="sb-head">
       <RouterLink :to="{ name: CourseRoute.Home }" class="sb-logo" @click="$emit('close')">
-        Mentora<span>.</span>
+        <span class="logo-text">Mentora</span><span class="logo-dot">.</span>
       </RouterLink>
       <div class="sb-search">
+        <span class="sb-search-icon">⌕</span>
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Search topics…"
+          placeholder="Search lessons…"
           autocomplete="off"
         />
       </div>

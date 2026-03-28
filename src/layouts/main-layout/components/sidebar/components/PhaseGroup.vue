@@ -1,8 +1,9 @@
 <template>
   <div class="phase-group">
     <div class="phase-header" @click="$emit('toggle')">
-      <span class="phase-dot" :style="{ background: phase.color }" />
+      <span class="phase-dot" :style="{ background: phase.color, color: phase.color }" />
       <span class="phase-label">{{ phase.label }}</span>
+      <span class="phase-chevron" :class="{ open: !collapsed }">›</span>
     </div>
 
     <div v-show="!collapsed" class="phase-items">
