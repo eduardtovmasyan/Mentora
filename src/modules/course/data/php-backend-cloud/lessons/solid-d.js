@@ -10,16 +10,15 @@ export default {
     'Explain how Laravel\'s service container implements DIP',
     'Write a test that swaps real DB for in-memory implementation',
   ],
-  body: `
-<h2>The Two Rules</h2>
-<ol>
-  <li>High-level modules must not import from low-level modules. Both depend on abstractions.</li>
-  <li>Abstractions must not depend on details. Details depend on abstractions.</li>
-</ol>
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — DIP Violation then Fix</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+  segments: [
+    { type: 'h2', key: 'h_two_rules' },
+    { type: 'ul', key: 'ul_two_rules' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'PHP — DIP Violation then Fix',
+      code: `<?php
 // ✗ BAD: OrderService (high-level) depends directly on MySQLOrderRepository (low-level)
 class OrderService
 {
@@ -69,14 +68,14 @@ $service = new OrderService(new MySQLOrderRepository());
 $repo    = new InMemoryOrderRepository();
 $service = new OrderService($repo);
 $service->placeOrder(['id' => 1, 'total' => 99.99]);
-assert($repo->findById(1) !== null);
-</code></pre>
-</div>
-
-<h2>Laravel Service Container</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Laravel DI Container</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+assert($repo->findById(1) !== null);`,
+    },
+    { type: 'h2', key: 'h_laravel_container' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'PHP — Laravel DI Container',
+      code: `<?php
 // In AppServiceProvider::register()
 $this->app->bind(
     OrderRepositoryInterface::class,
@@ -92,21 +91,29 @@ class OrderController extends Controller
 }
 
 // In tests — swap implementation with one line:
-$this->app->bind(OrderRepositoryInterface::class, InMemoryOrderRepository::class);
-</code></pre>
-</div>
+$this->app->bind(OrderRepositoryInterface::class, InMemoryOrderRepository::class);`,
+    },
+    { type: 'keypoints', key: 'keypoints' },
+  ],
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>DIP: code to interfaces, not implementations</li>
-    <li>Constructor injection is the preferred pattern — dependencies are explicit and required</li>
-    <li>Makes testing trivial: swap real implementations for fakes/mocks</li>
-    <li>Laravel's service container is DIP automated — bind interface once, inject everywhere</li>
-    <li>Red flag: <code>new ConcreteClass()</code> inside business logic — can't test without it</li>
-  </ul>
-</div>
-`,
+  bodyTexts: {
+    h_two_rules: 'The Two Rules',
+    ul_two_rules: [
+      'High-level modules must not import from low-level modules. Both depend on abstractions.',
+      'Abstractions must not depend on details. Details depend on abstractions.',
+    ],
+    h_laravel_container: 'Laravel Service Container',
+    keypoints: {
+      title: 'Key Points to Remember',
+      items: [
+        'DIP: code to interfaces, not implementations',
+        'Constructor injection is the preferred pattern — dependencies are explicit and required',
+        'Makes testing trivial: swap real implementations for fakes/mocks',
+        "Laravel's service container is DIP automated — bind interface once, inject everywhere",
+        'Red flag: <code>new ConcreteClass()</code> inside business logic — can\'t test without it',
+      ],
+    },
+  },
 };
 
 // ── PHP 8.0 ───────────────────────────────────────────────────────────

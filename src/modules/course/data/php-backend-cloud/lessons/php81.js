@@ -10,11 +10,9 @@ export default {
     'Explain what a Fiber is and how it relates to async PHP',
     'Know intersection types vs union types',
   ],
-  body: `
-<h2>Enums</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP 8.1 — Enums</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+  segments: [
+    { type: 'h2', text: 'Enums' },
+    { type: 'code', lang: 'php', label: 'PHP 8.1 — Enums', code: `&lt;?php
 // Pure enum — no scalar value, just named cases
 enum Direction { case North; case South; case East; case West; }
 
@@ -59,14 +57,10 @@ $all = OrderStatus::cases(); // [OrderStatus::Pending, ...]
 // Type-safe — no more magic strings!
 function processOrder(OrderStatus $status): void { /* ... */ }
 processOrder(OrderStatus::Paid); // ✓
-// processOrder('paid');          // ✗ TypeError
-</code></pre>
-</div>
+// processOrder('paid');          // ✗ TypeError` },
 
-<h2>Readonly & Fibers</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP 8.1 — Readonly & Fibers</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Readonly & Fibers' },
+    { type: 'code', lang: 'php', label: 'PHP 8.1 — Readonly & Fibers', code: `&lt;?php
 // readonly: set once in constructor, immutable after
 class User
 {
@@ -104,27 +98,22 @@ $fiber->resume('hello world');      // resumes → prints "Resumed with: hello w
 function process(Serializable&Countable $data): void {}
 
 // never return type — function always throws or exits:
-function abort(string $msg): never { throw new \RuntimeException($msg); }
+function abort(string $msg): never { throw new \\RuntimeException($msg); }
 
 // First-class callables:
 $fn = strlen(...);          // closure wrapping strlen
 $fn = $obj->method(...);    // closure wrapping method
-$lengths = array_map(strlen(...), ['hello', 'world']);
-</code></pre>
-</div>
+$lengths = array_map(strlen(...), ['hello', 'world']);` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Enums: pure (no value) or backed (string/int). Use backed enums for DB/JSON storage</li>
-    <li><code>from()</code> throws ValueError on invalid value. <code>tryFrom()</code> returns null — use tryFrom for user input</li>
-    <li>Readonly: set once in constructor, cannot be modified after. Perfect for immutable objects</li>
-    <li>Fibers: cooperative multitasking. Suspend/resume. Foundation of async PHP.</li>
-    <li>Intersection types: <code>A&amp;B</code> = must implement BOTH. Union types: <code>A|B</code> = implements either.</li>
-    <li>never return type: the function never returns — it throws or exits. Helps static analysis.</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Enums: pure (no value) or backed (string/int). Use backed enums for DB/JSON storage',
+      '<code>from()</code> throws ValueError on invalid value. <code>tryFrom()</code> returns null — use tryFrom for user input',
+      'Readonly: set once in constructor, cannot be modified after. Perfect for immutable objects',
+      'Fibers: cooperative multitasking. Suspend/resume. Foundation of async PHP.',
+      'Intersection types: <code>A&amp;B</code> = must implement BOTH. Union types: <code>A|B</code> = implements either.',
+      'never return type: the function never returns — it throws or exits. Helps static analysis.',
+    ]},
+  ],
 };
 
 // ── SQL INDEXES ───────────────────────────────────────────────────────

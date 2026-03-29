@@ -10,11 +10,9 @@ export default {
     'Apply ISP in the context of repositories: ReadRepository vs WriteRepository',
     'Understand how ISP enables the Dependency Inversion Principle',
   ],
-  body: `
-<h2>The Problem: Fat Interface</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — ISP Violation</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// One interface for everything — clients get methods they don't need
+  segments: [
+    { type: 'h2', text: 'The Problem: Fat Interface' },
+    { type: 'code', lang: 'php', label: 'PHP — ISP Violation', code: `// One interface for everything — clients get methods they don't need
 interface UserRepository {
     public function find(int $id): ?User;
     public function findAll(): array;
@@ -33,14 +31,10 @@ class ApiUserRepository implements UserRepository {
         throw new \BadMethodCallException('Not supported');
     }
     // ...
-}
-</code></pre>
-</div>
+}` },
 
-<h2>The Fix: Role Interfaces</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — ISP Compliant</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">interface UserReader {
+    { type: 'h2', text: 'The Fix: Role Interfaces' },
+    { type: 'code', lang: 'php', label: 'PHP — ISP Compliant', code: `interface UserReader {
     public function find(int $id): ?User;
     public function findAll(): array;
 }
@@ -70,14 +64,10 @@ class DatabaseUserRepository implements UserRepository {
 // Service that only needs to read
 class UserSearchService {
     public function __construct(private UserReader $repo) {} // narrow dependency
-}
-</code></pre>
-</div>
+}` },
 
-<h2>ISP in Laravel</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Separate read/write contracts</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// Commands only need the writer
+    { type: 'h2', text: 'ISP in Laravel' },
+    { type: 'code', lang: 'php', label: 'PHP — Separate read/write contracts', code: `// Commands only need the writer
 class CreateUserHandler {
     public function __construct(private UserWriter $users) {}
 
@@ -94,24 +84,16 @@ class GetUsersQueryHandler {
         return $this->users->findAll();
     }
 }
-// This naturally leads into CQRS
-</code></pre>
-</div>
+// This naturally leads into CQRS` },
 
-<div class="callout callout-tip">
-  <div class="callout-title">ISP vs SRP</div>
-  <p><strong>SRP</strong> is about a class having one reason to change. <strong>ISP</strong> is about clients not depending on methods they don't use. They solve different problems but reinforce each other — a SRP-compliant class usually naturally produces ISP-compliant interfaces.</p>
-</div>
+    { type: 'callout', style: 'tip', title: 'ISP vs SRP', html: '<strong>SRP</strong> is about a class having one reason to change. <strong>ISP</strong> is about clients not depending on methods they don\'t use. They solve different problems but reinforce each other — a SRP-compliant class usually naturally produces ISP-compliant interfaces.' },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Fat interface red flag: classes implement methods with <code>throw new BadMethodCallException</code></li>
-    <li>Split by client role — read clients get a reader interface, write clients a writer interface</li>
-    <li>ISP and DIP reinforce each other: narrow interfaces make it easier to inject only what a class needs</li>
-    <li>PHP traits can share implementation across unrelated interface implementations without inheritance</li>
-    <li>This pattern naturally leads into CQRS: commands use write interfaces, queries use read interfaces</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Fat interface red flag: classes implement methods with <code>throw new BadMethodCallException</code>',
+      'Split by client role — read clients get a reader interface, write clients a writer interface',
+      'ISP and DIP reinforce each other: narrow interfaces make it easier to inject only what a class needs',
+      'PHP traits can share implementation across unrelated interface implementations without inheritance',
+      'This pattern naturally leads into CQRS: commands use write interfaces, queries use read interfaces',
+    ]},
+  ],
 };

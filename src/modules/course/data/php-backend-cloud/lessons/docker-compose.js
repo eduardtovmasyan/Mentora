@@ -10,11 +10,13 @@ export default {
     'Add health checks so dependent services wait for DB to be ready',
     'Understand multi-stage Dockerfiles and optimize image size',
   ],
-  body: `
-<h2>Complete Laravel Compose Setup</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">YAML — docker-compose.yml</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-yaml">services:
+
+  // ── Structure ────────────────────────────────────────────────────────────
+  // Segments define layout only. Text keys are resolved from bodyTexts below.
+  // Code segments are always English — never translated.
+  segments: [
+    { type: 'h2', key: 'h_compose_setup' },
+    { type: 'code', lang: 'yaml', label: 'YAML — docker-compose.yml', code: `services:
   app:
     build:
       context: .
@@ -91,14 +93,10 @@ volumes:
 
 networks:
   app-network:
-    driver: bridge
-</code></pre>
-</div>
+    driver: bridge` },
 
-<h2>Multi-stage Dockerfile</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">Dockerfile</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">FROM php:8.2-fpm-alpine AS base
+    { type: 'h2', key: 'h_multistage' },
+    { type: 'code', lang: 'bash', label: 'Dockerfile', code: `FROM php:8.2-fpm-alpine AS base
 RUN apk add --no-cache postgresql-dev redis
 RUN docker-php-ext-install pdo pdo_pgsql opcache
 
@@ -121,14 +119,10 @@ WORKDIR /var/www/html
 COPY --from=build /var/www/html/vendor ./vendor
 COPY . .
 RUN php artisan config:cache && php artisan route:cache
-USER www-data
-</code></pre>
-</div>
+USER www-data` },
 
-<h2>Common Commands</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">docker compose up -d          # start all services in background
+    { type: 'h2', key: 'h_commands' },
+    { type: 'code', lang: 'bash', label: 'bash', code: `docker compose up -d          # start all services in background
 docker compose up --build     # rebuild images before starting
 docker compose down           # stop and remove containers
 docker compose down -v        # also remove volumes (wipes DB!)
@@ -137,24 +131,34 @@ docker compose exec app php artisan migrate
 docker compose exec app composer install
 docker compose logs -f app    # tail logs from app service
 docker compose ps             # list running containers
-docker compose restart nginx  # restart specific service
-</code></pre>
-</div>
+docker compose restart nginx  # restart specific service` },
 
-<div class="callout callout-tip">
-  <div class="callout-title">Override files for teams</div>
-  <p>Use <code>docker-compose.override.yml</code> for developer-specific settings (Xdebug port, personal env vars). Git-ignore it. The base <code>docker-compose.yml</code> is committed and shared. Docker Compose automatically merges both files when running <code>docker compose up</code>.</p>
-</div>
+    { type: 'callout', style: 'tip', key: 'callout_override' },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Use named volumes for databases (persistence) and bind mounts for source code (live reload)</li>
-    <li>Health checks: <code>depends_on: service_healthy</code> waits for DB to be ready before starting app</li>
-    <li>Multi-stage Dockerfile: build/dev stages are large; production stage copies only what's needed</li>
-    <li>Networks: all services in the same network can communicate by service name (mysql, redis)</li>
-    <li>Never use docker-compose v1 syntax — use Compose Spec (v3.x / no version field)</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', key: 'keypoints' },
+  ],
+
+  // ── English source text ──────────────────────────────────────────────────
+  // This is the English "locale". Russian/Armenian overrides live in ru.ts / hy.ts.
+  bodyTexts: {
+    h_compose_setup: 'Complete Laravel Compose Setup',
+    h_multistage:    'Multi-stage Dockerfile',
+    h_commands:      'Common Commands',
+
+    callout_override: {
+      title: 'Override files for teams',
+      html:  'Use <code>docker-compose.override.yml</code> for developer-specific settings (Xdebug port, personal env vars). Git-ignore it. The base <code>docker-compose.yml</code> is committed and shared. Docker Compose automatically merges both files when running <code>docker compose up</code>.',
+    },
+
+    keypoints: {
+      title: 'Key Points to Remember',
+      items: [
+        'Use named volumes for databases (persistence) and bind mounts for source code (live reload)',
+        'Health checks: <code>depends_on: service_healthy</code> waits for DB to be ready before starting app',
+        'Multi-stage Dockerfile: build/dev stages are large; production stage copies only what\'s needed',
+        'Networks: all services in the same network can communicate by service name (mysql, redis)',
+        'Never use docker-compose v1 syntax — use Compose Spec (v3.x / no version field)',
+      ],
+    },
+  },
 };

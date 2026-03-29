@@ -10,11 +10,9 @@ export default {
     'Write Laravel feature tests with database transactions and HTTP assertions',
     'Configure code coverage and set a minimum coverage threshold in CI',
   ],
-  body: `
-<h2>PHPUnit Unit Test</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — PHPUnit</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">use PHPUnit\Framework\TestCase;
+  segments: [
+    { type: 'h2', text: 'PHPUnit Unit Test' },
+    { type: 'code', lang: 'php', label: 'PHP — PHPUnit', code: `use PHPUnit\\Framework\\TestCase;
 
 class DiscountCalculatorTest extends TestCase {
     private DiscountCalculator $calculator;
@@ -41,14 +39,10 @@ class DiscountCalculatorTest extends TestCase {
             'free shipping' => [100.0, 100.0, new FreeDiscount()],
         ];
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Mocking Dependencies</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — PHPUnit mock</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class UserServiceTest extends TestCase {
+    { type: 'h2', text: 'Mocking Dependencies' },
+    { type: 'code', lang: 'php', label: 'PHP — PHPUnit mock', code: `class UserServiceTest extends TestCase {
     public function test_create_user_sends_email(): void {
         // Arrange
         $mailer = $this->createMock(MailerInterface::class);
@@ -68,14 +62,10 @@ class DiscountCalculatorTest extends TestCase {
         $this->assertSame('Alice', $user->name);
         // PHPUnit verifies the mock expectation (mailer->send called once)
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Pest (Modern PHP Testing)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Pest</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">use function Pest\Laravel\{get, post, actingAs};
+    { type: 'h2', text: 'Pest (Modern PHP Testing)' },
+    { type: 'code', lang: 'php', label: 'PHP — Pest', code: `use function Pest\\Laravel\\{get, post, actingAs};
 
 it('creates a user', function () {
     $response = post('/api/users', [
@@ -103,14 +93,10 @@ it('calculates discount', function (float $price, float $expected) {
 })->with([
     [100.0, 90.0],
     [50.0,  45.0],
-]);
-</code></pre>
-</div>
+]);` },
 
-<h2>Laravel Feature Test with DB</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">use Illuminate\Foundation\Testing\RefreshDatabase;
+    { type: 'h2', text: 'Laravel Feature Test with DB' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `use Illuminate\\Foundation\\Testing\\RefreshDatabase;
 
 class CreateOrderTest extends TestCase {
     use RefreshDatabase; // wraps each test in a transaction + rolls back
@@ -130,19 +116,14 @@ class CreateOrderTest extends TestCase {
         $this->assertDatabaseHas('orders', ['user_id' => $user->id]);
         Http::assertSent(fn($req) => str_contains($req->url(), 'stripe.com'));
     }
-}
-</code></pre>
-</div>
+}` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Design for testability: use DI, interfaces, no static global calls — makes mocking trivial</li>
-    <li>PHPUnit: extend TestCase, use setUp/tearDown, data providers for parameterized tests</li>
-    <li>Mocks verify interactions; stubs return canned values — use mocks sparingly, prefer stubs</li>
-    <li>Pest: modern fluent API on top of PHPUnit — datasets, higher-order tests, cleaner syntax</li>
-    <li>Laravel: RefreshDatabase for clean DB per test, Http::fake() for mocking external HTTP calls</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Design for testability: use DI, interfaces, no static global calls — makes mocking trivial',
+      'PHPUnit: extend TestCase, use setUp/tearDown, data providers for parameterized tests',
+      'Mocks verify interactions; stubs return canned values — use mocks sparingly, prefer stubs',
+      'Pest: modern fluent API on top of PHPUnit — datasets, higher-order tests, cleaner syntax',
+      'Laravel: RefreshDatabase for clean DB per test, Http::fake() for mocking external HTTP calls',
+    ]},
+  ],
 };

@@ -10,20 +10,18 @@ export default {
     'Find Lowest Common Ancestor efficiently',
     'Explain why iterative DFS avoids stack overflow',
   ],
-  body: `
-<h2>Tree Terminology</h2>
-<ul>
-  <li><strong>Root:</strong> Top node, no parent</li>
-  <li><strong>Leaf:</strong> Node with no children</li>
-  <li><strong>Height:</strong> Longest path from node to a leaf</li>
-  <li><strong>Balanced:</strong> |height(left) - height(right)| &lt;= 1 for every node</li>
-  <li><strong>Complete:</strong> All levels filled except possibly the last (filled left to right)</li>
-</ul>
+  segments: [
+    { type: 'h2', text: 'Tree Terminology' },
+    { type: 'ul', items: [
+      '<strong>Root:</strong> Top node, no parent',
+      '<strong>Leaf:</strong> Node with no children',
+      '<strong>Height:</strong> Longest path from node to a leaf',
+      '<strong>Balanced:</strong> |height(left) - height(right)| &lt;= 1 for every node',
+      '<strong>Complete:</strong> All levels filled except possibly the last (filled left to right)',
+    ]},
 
-<h2>All Traversals</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Tree Traversals</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'All Traversals' },
+    { type: 'code', lang: 'php', label: 'PHP — Tree Traversals', code: `&lt;?php
 class TreeNode
 {
     public function __construct(
@@ -89,14 +87,10 @@ function inorderIterative(?TreeNode $root): array
         $curr = $curr->right;
     }
     return $result;
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Common Tree Problems</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Classic Tree Problems</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Common Tree Problems' },
+    { type: 'code', lang: 'php', label: 'PHP — Classic Tree Problems', code: `&lt;?php
 // Max depth
 function maxDepth(?TreeNode $root): int
 {
@@ -140,20 +134,15 @@ function lowestCommonAncestor(?TreeNode $root, TreeNode $p, TreeNode $q): ?TreeN
     $right = lowestCommonAncestor($root->right, $p, $q);
     if ($left !== null && $right !== null) return $root; // p and q in different subtrees
     return $left ?? $right;
-}
-</code></pre>
-</div>
+}` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>In-order of BST gives sorted order — critical property</li>
-    <li>DFS uses recursion (or explicit stack). BFS uses a queue.</li>
-    <li>Base case for tree recursion: null node returns 0/null/[]</li>
-    <li>Height/depth: return values UP the recursion (post-order thinking)</li>
-    <li>Path problems (diameter): use a global variable updated inside recursion</li>
-    <li>Balanced tree: O(log n) height. Skewed tree: O(n) height.</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'In-order of BST gives sorted order — critical property',
+      'DFS uses recursion (or explicit stack). BFS uses a queue.',
+      'Base case for tree recursion: null node returns 0/null/[]',
+      'Height/depth: return values UP the recursion (post-order thinking)',
+      'Path problems (diameter): use a global variable updated inside recursion',
+      'Balanced tree: O(log n) height. Skewed tree: O(n) height.',
+    ]},
+  ],
 };

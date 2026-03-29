@@ -10,13 +10,14 @@ export default {
     'Contrast mutable and immutable builders, and explain the trade-offs',
     'Identify Builder usage throughout the Laravel framework (QueryBuilder, MailMessage, PendingRequest)',
   ],
-  body: `
-<h2>The Problem: Telescoping Constructors</h2>
-<p>Consider an <code>Email</code> object that needs a sender, recipient, subject, body, CC list, BCC list, attachments, reply-to address, priority, and HTML flag. A traditional constructor forces callers to supply all arguments at once — in the right order — producing unreadable call sites and making optional parameters painful:</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+  segments: [
+    { type: 'h2', key: 'h_telescoping' },
+    { type: 'p', key: 'p_telescoping_intro' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'Anti-pattern: telescoping constructor',
+      code: `<?php
 
 // Anti-pattern: telescoping constructor
 class Email
@@ -40,32 +41,26 @@ $email = new Email(
     'sender@example.com',
     'user@example.com',
     'Your invoice',
-    '&lt;p&gt;See attached.&lt;/p&gt;',
+    '<p>See attached.</p>',
     [],        // cc
     [],        // bcc
     ['/tmp/invoice.pdf'],
     '',        // reply-to — easy to forget entirely
     3,         // priority — magic number
     true
-);
-</code></pre>
-</div>
+);`,
+    },
+    { type: 'p', key: 'p_telescoping_conclusion' },
+    { type: 'callout', style: 'tip', key: 'callout_named_args' },
+    { type: 'h2', key: 'h_fluent_builder' },
+    { type: 'p', key: 'p_fluent_builder_intro' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'Fluent EmailBuilder with method chaining',
+      code: `<?php
 
-<p>This is called the <strong>telescoping constructor anti-pattern</strong>. Adding one new optional parameter means updating every call site. The Builder pattern eliminates this entirely.</p>
-
-<div class="callout callout-tip">
-  <div class="callout-title">Builder vs Named Arguments</div>
-  <p>PHP 8.0 named arguments help at the call site but do not solve validation, multi-step construction, or producing different product representations from the same process. Builder remains valuable for complex objects that require validation logic during assembly.</p>
-</div>
-
-<h2>Fluent Builder with Method Chaining</h2>
-<p>Each setter method returns <code>$this</code>, enabling a fluent API. A final <code>build()</code> method validates state and returns the immutable product object.</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
-
-namespace App\Mail;
+namespace App\\Mail;
 
 use InvalidArgumentException;
 
@@ -175,22 +170,21 @@ $email = (new EmailBuilder())
     ->from('billing@company.com')
     ->to('client@example.com')
     ->subject('Your invoice #1042')
-    ->body('&lt;p&gt;Please find your invoice attached.&lt;/p&gt;')
+    ->body('<p>Please find your invoice attached.</p>')
     ->attach('/storage/invoices/1042.pdf')
     ->highPriority()
     ->replyTo('accounts@company.com')
-    ->build();
-</code></pre>
-</div>
+    ->build();`,
+    },
+    { type: 'h2', key: 'h_director' },
+    { type: 'p', key: 'p_director_intro' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'Director encapsulating reusable construction recipes',
+      code: `<?php
 
-<h2>The Director Class</h2>
-<p>A <strong>Director</strong> encapsulates common construction recipes, so the same steps are not duplicated across call sites. It depends on a builder interface, not a concrete builder, so the same director can produce different representations.</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
-
-namespace App\Mail;
+namespace App\\Mail;
 
 class EmailDirector
 {
@@ -204,7 +198,7 @@ class EmailDirector
             ->to($to)
             ->replyTo('accounts@company.com')
             ->subject("Your invoice #{$invoiceId}")
-            ->body("&lt;p&gt;Your invoice #{$invoiceId} is ready. Please see attached.&lt;/p&gt;")
+            ->body("<p>Your invoice #{$invoiceId} is ready. Please see attached.</p>")
             ->attach("/storage/invoices/{$invoiceId}.pdf")
             ->highPriority()
             ->build();
@@ -217,25 +211,24 @@ class EmailDirector
             ->from('hello@company.com')
             ->to($to)
             ->subject("Welcome to Acme, {$firstName}!")
-            ->body("&lt;p&gt;Hi {$firstName}, we're thrilled to have you on board.&lt;/p&gt;")
+            ->body("<p>Hi {$firstName}, we're thrilled to have you on board.</p>")
             ->build();
     }
 }
 
 // Usage:
 $director = new EmailDirector(new EmailBuilder());
-$email    = $director->buildInvoiceEmail('client@example.com', 1042);
-</code></pre>
-</div>
+$email    = $director->buildInvoiceEmail('client@example.com', 1042);`,
+    },
+    { type: 'h2', key: 'h_immutable' },
+    { type: 'p', key: 'p_immutable_intro' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'Immutable RequestBuilder — each setter returns a new instance',
+      code: `<?php
 
-<h2>Immutable Builder</h2>
-<p>Mutable builders have a subtle bug: if you store the builder and call <code>build()</code> twice after changing a property between calls, both products are affected because they share the same underlying state. An immutable builder returns a <em>new</em> instance on every setter call, making it safe to fork and reuse.</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
-
-namespace App\Http;
+namespace App\\Http;
 
 final class RequestBuilder
 {
@@ -282,7 +275,7 @@ final class RequestBuilder
     public function build(): HttpRequest
     {
         if (empty($this->url)) {
-            throw new \InvalidArgumentException('URL is required.');
+            throw new \\InvalidArgumentException('URL is required.');
         }
         return new HttpRequest($this->method, $this->url, $this->headers, $this->body, $this->timeout);
     }
@@ -296,18 +289,17 @@ $base = RequestBuilder::make()
 
 $getUser    = $base->method('GET')->url('/users/42')->build();
 $updateUser = $base->method('PUT')->url('/users/42')->bodyJson(['name' => 'Alice'])->build();
-// $base is untouched — safe to reuse
-</code></pre>
-</div>
+// $base is untouched — safe to reuse`,
+    },
+    { type: 'h2', key: 'h_laravel_query' },
+    { type: 'p', key: 'p_laravel_query_intro' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: "Laravel's QueryBuilder in action",
+      code: `<?php
 
-<h2>Real-World: Laravel's Query Builder</h2>
-<p>Laravel's Eloquent and DB Query Builder are canonical examples of the Builder pattern used in production at massive scale. Every chained method (<code>where</code>, <code>orderBy</code>, <code>limit</code>) returns the same builder instance and accumulates state. <code>get()</code> or <code>first()</code> acts as the <code>build()</code> step that compiles and executes the query.</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
-
-use Illuminate\Support\Facades\DB;
+use Illuminate\\Support\\Facades\\DB;
 
 // Laravel's QueryBuilder — you never call "new Query(...)" with 8 args.
 // Each method accumulates state and returns $this.
@@ -319,7 +311,7 @@ $users = DB::table('users')
     ->orderBy('created_at', 'desc')
     ->limit(50)
     ->offset(100)
-    ->get(); // &lt;-- the "build()" step: compiles SQL and executes
+    ->get(); // <-- the "build()" step: compiles SQL and executes
 
 // The same builder can produce different SQL depending on runtime conditions:
 $query = DB::table('orders')->where('user_id', auth()->id());
@@ -332,16 +324,15 @@ if ($request->boolean('urgent')) {
     $query->where('priority', 1)->orderBy('created_at', 'asc');
 }
 
-$orders = $query->paginate(20);
-</code></pre>
-</div>
-
-<h2>Testing with Builders</h2>
-<p>Builders make test data setup dramatically cleaner. Laravel's model factories are an implementation of the Builder pattern — each <code>state()</code> or <code>has()</code> call returns a configured factory ready to <code>create()</code> or <code>make()</code> the product.</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+$orders = $query->paginate(20);`,
+    },
+    { type: 'h2', key: 'h_testing' },
+    { type: 'p', key: 'p_testing_intro' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'Laravel factories and a custom OrderTestBuilder',
+      code: `<?php
 
 // Laravel factory as a Builder:
 $adminUser = User::factory()
@@ -388,45 +379,56 @@ class OrderTestBuilder
 }
 
 // In a test:
-$order = OrderTestBuilder::make()->withTotal(5000)->paid()->create();
-</code></pre>
-</div>
-
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: When is a Director class worth adding, and when is it overkill?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>A Director is worth adding when the same multi-step construction recipe is repeated in more than one place. It extracts the recipe into a single named method, preventing drift. If a builder is only used in one place with a unique configuration each time, a Director adds indirection without benefit — just use the builder directly. A common middle ground in Laravel is a static factory method on the builder itself, e.g. <code>EmailBuilder::forInvoice($invoiceId)</code>.</p></div>
-</div>
-
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: What is the difference between Builder and Factory patterns?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>Factory (including Abstract Factory) focuses on <em>which class to instantiate</em> — it encapsulates object creation decisions and returns a product. Builder focuses on <em>how to construct one complex object step by step</em> — it accumulates configuration and produces the final product only when <code>build()</code> is called. Builders are appropriate when construction requires many optional steps or multi-step validation; factories are appropriate when you need to choose between product variants based on runtime conditions.</p></div>
-</div>
-
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: What is the risk of a mutable builder and how do you mitigate it?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>If you store a mutable builder and call further setters after retrieving one product, subsequent builds reflect the mutated state. This is especially dangerous when a base builder is shared across requests in a long-running process (Swoole, RoadRunner). The fix is either an immutable builder (each setter returns a new instance via <code>clone</code> or a private constructor) or cloning the builder before each use: <code>$specificBuilder = clone $baseBuilder;</code>.</p></div>
-</div>
-
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Builder solves the <strong>telescoping constructor anti-pattern</strong> — constructors with many optional parameters that are hard to read and maintain.</li>
-    <li>Each setter method returns <code>$this</code> (or a new instance for immutable builders), enabling a <strong>fluent, self-documenting API</strong>.</li>
-    <li>The <code>build()</code> method is the right place to centralise <strong>validation logic</strong> before the product is created.</li>
-    <li>A <strong>Director</strong> encapsulates reusable construction recipes; skip it if there is only one call site.</li>
-    <li><strong>Immutable builders</strong> are safer in shared, long-running environments — each setter returns a new instance, leaving the original untouched.</li>
-    <li>Laravel's <strong>QueryBuilder, MailMessage, PendingRequest</strong> (HTTP client), and model factories are all Builder pattern implementations.</li>
-    <li>Distinguish Builder (step-by-step construction of one complex object) from Factory (choosing which class to instantiate).</li>
-  </ul>
-</div>
-`,
+$order = OrderTestBuilder::make()->withTotal(5000)->paid()->create();`,
+    },
+    { type: 'qa', key: 'qa' },
+    { type: 'keypoints', key: 'keypoints' },
+  ],
+  bodyTexts: {
+    h_telescoping: 'The Problem: Telescoping Constructors',
+    p_telescoping_intro: 'Consider an <code>Email</code> object that needs a sender, recipient, subject, body, CC list, BCC list, attachments, reply-to address, priority, and HTML flag. A traditional constructor forces callers to supply all arguments at once — in the right order — producing unreadable call sites and making optional parameters painful:',
+    p_telescoping_conclusion: 'This is called the <strong>telescoping constructor anti-pattern</strong>. Adding one new optional parameter means updating every call site. The Builder pattern eliminates this entirely.',
+    callout_named_args: {
+      title: 'Builder vs Named Arguments',
+      html: 'PHP 8.0 named arguments help at the call site but do not solve validation, multi-step construction, or producing different product representations from the same process. Builder remains valuable for complex objects that require validation logic during assembly.',
+    },
+    h_fluent_builder: 'Fluent Builder with Method Chaining',
+    p_fluent_builder_intro: 'Each setter method returns <code>$this</code>, enabling a fluent API. A final <code>build()</code> method validates state and returns the immutable product object.',
+    h_director: 'The Director Class',
+    p_director_intro: 'A <strong>Director</strong> encapsulates common construction recipes, so the same steps are not duplicated across call sites. It depends on a builder interface, not a concrete builder, so the same director can produce different representations.',
+    h_immutable: 'Immutable Builder',
+    p_immutable_intro: 'Mutable builders have a subtle bug: if you store the builder and call <code>build()</code> twice after changing a property between calls, both products are affected because they share the same underlying state. An immutable builder returns a <em>new</em> instance on every setter call, making it safe to fork and reuse.',
+    h_laravel_query: "Real-World: Laravel's Query Builder",
+    p_laravel_query_intro: "Laravel's Eloquent and DB Query Builder are canonical examples of the Builder pattern used in production at massive scale. Every chained method (<code>where</code>, <code>orderBy</code>, <code>limit</code>) returns the same builder instance and accumulates state. <code>get()</code> or <code>first()</code> acts as the <code>build()</code> step that compiles and executes the query.",
+    h_testing: 'Testing with Builders',
+    p_testing_intro: "Builders make test data setup dramatically cleaner. Laravel's model factories are an implementation of the Builder pattern — each <code>state()</code> or <code>has()</code> call returns a configured factory ready to <code>create()</code> or <code>make()</code> the product.",
+    qa: {
+      pairs: [
+        {
+          q: 'When is a Director class worth adding, and when is it overkill?',
+          a: 'A Director is worth adding when the same multi-step construction recipe is repeated in more than one place. It extracts the recipe into a single named method, preventing drift. If a builder is only used in one place with a unique configuration each time, a Director adds indirection without benefit — just use the builder directly. A common middle ground in Laravel is a static factory method on the builder itself, e.g. <code>EmailBuilder::forInvoice($invoiceId)</code>.',
+        },
+        {
+          q: 'What is the difference between Builder and Factory patterns?',
+          a: 'Factory (including Abstract Factory) focuses on <em>which class to instantiate</em> — it encapsulates object creation decisions and returns a product. Builder focuses on <em>how to construct one complex object step by step</em> — it accumulates configuration and produces the final product only when <code>build()</code> is called. Builders are appropriate when construction requires many optional steps or multi-step validation; factories are appropriate when you need to choose between product variants based on runtime conditions.',
+        },
+        {
+          q: 'What is the risk of a mutable builder and how do you mitigate it?',
+          a: 'If you store a mutable builder and call further setters after retrieving one product, subsequent builds reflect the mutated state. This is especially dangerous when a base builder is shared across requests in a long-running process (Swoole, RoadRunner). The fix is either an immutable builder (each setter returns a new instance via <code>clone</code> or a private constructor) or cloning the builder before each use: <code>$specificBuilder = clone $baseBuilder;</code>.',
+        },
+      ],
+    },
+    keypoints: {
+      title: 'Key Points to Remember',
+      items: [
+        'Builder solves the <strong>telescoping constructor anti-pattern</strong> — constructors with many optional parameters that are hard to read and maintain.',
+        'Each setter method returns <code>$this</code> (or a new instance for immutable builders), enabling a <strong>fluent, self-documenting API</strong>.',
+        'The <code>build()</code> method is the right place to centralise <strong>validation logic</strong> before the product is created.',
+        'A <strong>Director</strong> encapsulates reusable construction recipes; skip it if there is only one call site.',
+        '<strong>Immutable builders</strong> are safer in shared, long-running environments — each setter returns a new instance, leaving the original untouched.',
+        "Laravel's <strong>QueryBuilder, MailMessage, PendingRequest</strong> (HTTP client), and model factories are all Builder pattern implementations.",
+        'Distinguish Builder (step-by-step construction of one complex object) from Factory (choosing which class to instantiate).',
+      ],
+    },
+  },
 };

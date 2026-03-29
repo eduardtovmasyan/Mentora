@@ -10,22 +10,17 @@ export default {
     'Distinguish authentication (who are you) from authorization (what can you do)',
     'Implement Laravel Sanctum for SPA authentication and Passport for OAuth server',
   ],
-  body: `
-<h2>OAuth 2.0 Flows</h2>
-<table class="ctable">
-  <thead><tr><th>Flow</th><th>Use case</th><th>Client type</th></tr></thead>
-  <tbody>
-    <tr><td>Authorization Code + PKCE</td><td>Web apps, SPAs, mobile</td><td>Public or confidential</td></tr>
-    <tr><td>Client Credentials</td><td>Machine-to-machine (M2M)</td><td>Confidential (server)</td></tr>
-    <tr><td>Device Code</td><td>TV, CLI, IoT</td><td>Public</td></tr>
-    <tr><td>Implicit (deprecated)</td><td>Old SPAs</td><td>Avoid — use Auth Code + PKCE</td></tr>
-  </tbody>
-</table>
+  segments: [
+    { type: 'h2', text: 'OAuth 2.0 Flows' },
+    { type: 'table', headers: ['Flow', 'Use case', 'Client type'], rows: [
+      ['Authorization Code + PKCE', 'Web apps, SPAs, mobile', 'Public or confidential'],
+      ['Client Credentials', 'Machine-to-machine (M2M)', 'Confidential (server)'],
+      ['Device Code', 'TV, CLI, IoT', 'Public'],
+      ['Implicit (deprecated)', 'Old SPAs', 'Avoid — use Auth Code + PKCE'],
+    ]},
 
-<h2>Authorization Code Flow with PKCE</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — PKCE generation</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// Step 1: Generate code verifier and challenge
+    { type: 'h2', text: 'Authorization Code Flow with PKCE' },
+    { type: 'code', lang: 'php', label: 'PHP — PKCE generation', code: `// Step 1: Generate code verifier and challenge
 $codeVerifier  = bin2hex(random_bytes(32)); // 64-char random string
 $codeChallenge = rtrim(strtr(base64_encode(hash('sha256', $codeVerifier, true)), '+/', '-_'), '=');
 
@@ -58,14 +53,10 @@ function handleCallback(Request $request): void {
     ]);
     $tokens = $response->json();
     // Store access_token, refresh_token securely
-}
-</code></pre>
-</div>
+}` },
 
-<h2>JWT Structure & Verification</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — JWT manual implementation</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">function jwtSign(array $payload, string $secret): string {
+    { type: 'h2', text: 'JWT Structure & Verification' },
+    { type: 'code', lang: 'php', label: 'PHP — JWT manual implementation', code: `function jwtSign(array $payload, string $secret): string {
     $header  = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
     $payload = base64url_encode(json_encode($payload));
     $sig     = base64url_encode(hash_hmac('sha256', "{$header}.{$payload}", $secret, true));
@@ -76,10 +67,10 @@ function jwtVerify(string $token, string $secret): array {
     [$header, $payload, $sig] = explode('.', $token);
     $expected = base64url_encode(hash_hmac('sha256', "{$header}.{$payload}", $secret, true));
 
-    if (!hash_equals($expected, $sig)) throw new \RuntimeException('Invalid JWT signature');
+    if (!hash_equals($expected, $sig)) throw new \\RuntimeException('Invalid JWT signature');
 
     $claims = json_decode(base64url_decode($payload), true);
-    if ($claims['exp'] < time()) throw new \RuntimeException('JWT expired');
+    if ($claims['exp'] < time()) throw new \\RuntimeException('JWT expired');
 
     return $claims;
 }
@@ -92,14 +83,10 @@ $token = jwtSign([
     'roles' => ['user'],
     'iat'   => time(),
     'exp'   => time() + 3600, // 1 hour
-], config('app.jwt_secret'));
-</code></pre>
-</div>
+], config('app.jwt_secret'));` },
 
-<h2>Refresh Token Rotation</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Secure refresh token handling</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class TokenService {
+    { type: 'h2', text: 'Refresh Token Rotation' },
+    { type: 'code', lang: 'php', label: 'PHP — Secure refresh token handling', code: `class TokenService {
     public function refresh(string $refreshToken): array {
         $stored = RefreshToken::where('token', hash('sha256', $refreshToken))
             ->where('expires_at', '>', now())
@@ -121,24 +108,16 @@ $token = jwtSign([
             'refresh_token' => $newRefresh, // send plain token to client
         ];
     }
-}
-</code></pre>
-</div>
+}` },
 
-<div class="callout callout-tip">
-  <div class="callout-title">Laravel Sanctum vs Passport</div>
-  <p><strong>Sanctum</strong>: simple token auth for SPAs and mobile apps. No full OAuth server. Use for first-party clients. <strong>Passport</strong>: full OAuth 2.0 server implementation. Use when you need to authorize third-party applications (like GitHub OAuth apps). Both use Laravel's guard system.</p>
-</div>
+    { type: 'callout', style: 'tip', title: 'Laravel Sanctum vs Passport', html: '<strong>Sanctum</strong>: simple token auth for SPAs and mobile apps. No full OAuth server. Use for first-party clients. <strong>Passport</strong>: full OAuth 2.0 server implementation. Use when you need to authorize third-party applications (like GitHub OAuth apps). Both use Laravel\'s guard system.' },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Always use Authorization Code + PKCE for public clients (SPAs, mobile) — never implicit flow</li>
-    <li>JWT: verify signature AND expiry; use RS256 (asymmetric) for multi-service environments</li>
-    <li>Refresh tokens: store hashed, rotate on use, revoke on suspicious reuse detection</li>
-    <li>Never store JWTs in localStorage (XSS risk) — use httpOnly secure cookies for web apps</li>
-    <li>OpenID Connect = OAuth 2.0 + identity layer (id_token with user claims)</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Always use Authorization Code + PKCE for public clients (SPAs, mobile) — never implicit flow',
+      'JWT: verify signature AND expiry; use RS256 (asymmetric) for multi-service environments',
+      'Refresh tokens: store hashed, rotate on use, revoke on suspicious reuse detection',
+      'Never store JWTs in localStorage (XSS risk) — use httpOnly secure cookies for web apps',
+      'OpenID Connect = OAuth 2.0 + identity layer (id_token with user claims)',
+    ]},
+  ],
 };

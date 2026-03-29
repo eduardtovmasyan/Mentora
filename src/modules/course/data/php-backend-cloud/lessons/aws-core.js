@@ -10,19 +10,17 @@ export default {
     'Know when to use IAM roles vs access keys',
     'Explain the shared responsibility model',
   ],
-  body: `
-<h2>AWS Global Infrastructure</h2>
-<ul>
-  <li><strong>Region:</strong> A geographic area with multiple isolated data centers. Examples: eu-west-1 (Ireland), us-east-1 (N. Virginia). Choose region close to your users to minimize latency.</li>
-  <li><strong>Availability Zone (AZ):</strong> One or more discrete data centers within a region, with redundant power/networking/connectivity. eu-west-1 has 3 AZs: eu-west-1a, eu-west-1b, eu-west-1c.</li>
-  <li><strong>Edge Location:</strong> CloudFront CDN endpoints. 400+ worldwide. Cache static content close to users.</li>
-</ul>
-<p><strong>Why multiple AZs?</strong> If you deploy to two AZs, a single data center failure doesn't take down your app. This is the foundation of high availability in AWS.</p>
+  segments: [
+    { type: 'h2', text: 'AWS Global Infrastructure' },
+    { type: 'ul', items: [
+      '<strong>Region:</strong> A geographic area with multiple isolated data centers. Examples: eu-west-1 (Ireland), us-east-1 (N. Virginia). Choose region close to your users to minimize latency.',
+      '<strong>Availability Zone (AZ):</strong> One or more discrete data centers within a region, with redundant power/networking/connectivity. eu-west-1 has 3 AZs: eu-west-1a, eu-west-1b, eu-west-1c.',
+      '<strong>Edge Location:</strong> CloudFront CDN endpoints. 400+ worldwide. Cache static content close to users.',
+    ]},
+    { type: 'p', html: '<strong>Why multiple AZs?</strong> If you deploy to two AZs, a single data center failure doesn\'t take down your app. This is the foundation of high availability in AWS.' },
 
-<h2>IAM — Identity & Access Management</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">IAM — Core Concepts</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash"># IAM User — a person or service with long-term credentials (access key + secret)
+    { type: 'h2', text: 'IAM — Identity & Access Management' },
+    { type: 'code', lang: 'bash', label: 'IAM — Core Concepts', code: `# IAM User — a person or service with long-term credentials (access key + secret)
 # Use for: developers needing CLI access, CI/CD systems (if no better option)
 # DON'T use for: EC2, Lambda, ECS — use roles instead
 
@@ -49,16 +47,12 @@ export default {
 }
 
 # Attach a policy to a role using AWS CLI:
-aws iam attach-role-policy \
-  --role-name my-app-role \
-  --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
-</code></pre>
-</div>
+aws iam attach-role-policy \\
+  --role-name my-app-role \\
+  --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess` },
 
-<h2>IAM Best Practices</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">IAM — Best Practices</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash"># 1. ROOT ACCOUNT: protect with MFA, never use for daily work
+    { type: 'h2', text: 'IAM Best Practices' },
+    { type: 'code', lang: 'bash', label: 'IAM — Best Practices', code: `# 1. ROOT ACCOUNT: protect with MFA, never use for daily work
 #    Root = unlimited power, no restrictions
 #    Create an IAM admin user for daily use instead
 
@@ -78,8 +72,8 @@ aws iam attach-role-policy \
 # 6. AUDIT: use CloudTrail to log all API calls
 
 # Create an EC2 instance profile (role for EC2):
-aws iam create-role \
-  --role-name my-ec2-role \
+aws iam create-role \\
+  --role-name my-ec2-role \\
   --assume-role-policy-document '{
     "Version":"2012-10-17",
     "Statement":[{
@@ -90,35 +84,30 @@ aws iam create-role \
   }'
 
 # Attach permissions to the role:
-aws iam attach-role-policy \
-  --role-name my-ec2-role \
+aws iam attach-role-policy \\
+  --role-name my-ec2-role \\
   --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
 
 # Create instance profile and add role:
 aws iam create-instance-profile --instance-profile-name my-ec2-profile
-aws iam add-role-to-instance-profile \
-  --instance-profile-name my-ec2-profile \
-  --role-name my-ec2-role
-</code></pre>
-</div>
+aws iam add-role-to-instance-profile \\
+  --instance-profile-name my-ec2-profile \\
+  --role-name my-ec2-role` },
 
-<h2>Shared Responsibility Model</h2>
-<p>AWS and customers share security responsibility — but the split depends on the service type:</p>
-<ul>
-  <li><strong>AWS is responsible for:</strong> Security OF the cloud — hardware, data centers, network infrastructure, hypervisor, managed service software.</li>
-  <li><strong>You are responsible for:</strong> Security IN the cloud — OS patching (EC2), application security, IAM permissions, data encryption, network configuration, firewall rules.</li>
-</ul>
+    { type: 'h2', text: 'Shared Responsibility Model' },
+    { type: 'p', html: 'AWS and customers share security responsibility — but the split depends on the service type:' },
+    { type: 'ul', items: [
+      '<strong>AWS is responsible for:</strong> Security OF the cloud — hardware, data centers, network infrastructure, hypervisor, managed service software.',
+      '<strong>You are responsible for:</strong> Security IN the cloud — OS patching (EC2), application security, IAM permissions, data encryption, network configuration, firewall rules.',
+    ]},
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Region = geographic area. AZ = isolated data center within a region. Deploy across 2+ AZs for HA.</li>
-    <li>IAM User = long-term credentials. IAM Role = temporary credentials for services.</li>
-    <li>Always use roles for AWS services (EC2, Lambda, ECS) — never access keys in config files</li>
-    <li>Least privilege: grant only the specific actions and resources needed</li>
-    <li>Root account: enable MFA, don't use for daily work</li>
-    <li>Shared responsibility: AWS secures the infrastructure; you secure your application and data</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Region = geographic area. AZ = isolated data center within a region. Deploy across 2+ AZs for HA.',
+      'IAM User = long-term credentials. IAM Role = temporary credentials for services.',
+      'Always use roles for AWS services (EC2, Lambda, ECS) — never access keys in config files',
+      'Least privilege: grant only the specific actions and resources needed',
+      'Root account: enable MFA, don\'t use for daily work',
+      'Shared responsibility: AWS secures the infrastructure; you secure your application and data',
+    ]},
+  ],
 };

@@ -10,17 +10,11 @@ export default {
     'Rate-limit jobs using Laravel\'s built-in throttle middleware',
     'Deploy queue workers with Supervisor; monitor with Laravel Horizon',
   ],
-  body: `
-<h2>Creating and Dispatching a Job</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">php artisan make:job SendWelcomeEmail
-php artisan make:job ProcessPayment
-</code></pre>
-</div>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Job class</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class SendWelcomeEmail implements ShouldQueue {
+  segments: [
+    { type: 'h2', text: 'Creating and Dispatching a Job' },
+    { type: 'code', lang: 'bash', label: 'bash', code: `php artisan make:job SendWelcomeEmail
+php artisan make:job ProcessPayment` },
+    { type: 'code', lang: 'php', label: 'PHP — Job class', code: `class SendWelcomeEmail implements ShouldQueue {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;           // retry up to 3 times
@@ -33,7 +27,7 @@ php artisan make:job ProcessPayment
         $mailer->to($this->user->email)->send(new WelcomeMail($this->user));
     }
 
-    public function failed(\Throwable $e): void {
+    public function failed(\\Throwable $e): void {
         Log::error('Welcome email failed', [
             'user_id' => $this->user->id,
             'error'   => $e->getMessage(),
@@ -45,43 +39,31 @@ php artisan make:job ProcessPayment
 // Dispatch
 SendWelcomeEmail::dispatch($user);
 SendWelcomeEmail::dispatch($user)->onQueue('emails');  // specific queue
-SendWelcomeEmail::dispatch($user)->delay(now()->addMinutes(5)); // delayed
-</code></pre>
-</div>
+SendWelcomeEmail::dispatch($user)->delay(now()->addMinutes(5)); // delayed` },
 
-<h2>Job Chaining</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Sequential jobs</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// Jobs run in sequence — second starts only after first succeeds
+    { type: 'h2', text: 'Job Chaining' },
+    { type: 'code', lang: 'php', label: 'PHP — Sequential jobs', code: `// Jobs run in sequence — second starts only after first succeeds
 Bus::chain([
     new ProcessPayment($order),
     new SendOrderConfirmation($order),
     new UpdateInventory($order),
-])->dispatch();
-</code></pre>
-</div>
+])->dispatch();` },
 
-<h2>Job Batching</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Parallel jobs with callbacks</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">$batch = Bus::batch([
+    { type: 'h2', text: 'Job Batching' },
+    { type: 'code', lang: 'php', label: 'PHP — Parallel jobs with callbacks', code: `$batch = Bus::batch([
     new ImportUsersChunk($chunk1),
     new ImportUsersChunk($chunk2),
     new ImportUsersChunk($chunk3),
 ])
 ->then(fn(Batch $b) => Log::info("All {$b->totalJobs} chunks imported"))
-->catch(fn(Batch $b, \Throwable $e) => Log::error('Import failed', ['error' => $e->getMessage()]))
+->catch(fn(Batch $b, \\Throwable $e) => Log::error('Import failed', ['error' => $e->getMessage()]))
 ->finally(fn(Batch $b) => Cache::forget('import_lock'))
 ->dispatch();
 
-echo $batch->id; // UUID to track batch progress
-</code></pre>
-</div>
+echo $batch->id; // UUID to track batch progress` },
 
-<h2>Rate Limiting Jobs</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class SendSmsNotification implements ShouldQueue {
+    { type: 'h2', text: 'Rate Limiting Jobs' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `class SendSmsNotification implements ShouldQueue {
     public function middleware(): array {
         // Max 5 SMS per second (Twilio limit)
         return [new RateLimited('sms-notifications')];
@@ -91,14 +73,10 @@ echo $batch->id; // UUID to track batch progress
 // In AppServiceProvider
 RateLimiter::for('sms-notifications', fn($job) =>
     Limit::perSecond(5)
-);
-</code></pre>
-</div>
+);` },
 
-<h2>Running Workers</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">bash — Development + Production</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash"># Development
+    { type: 'h2', text: 'Running Workers' },
+    { type: 'code', lang: 'bash', label: 'bash — Development + Production', code: `# Development
 php artisan queue:work --tries=3 --timeout=60
 
 # Production: Supervisor keeps workers running
@@ -111,19 +89,14 @@ autorestart=true
 
 # Horizon (Redis only) — beautiful dashboard + metrics
 composer require laravel/horizon
-php artisan horizon
-</code></pre>
-</div>
+php artisan horizon` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Jobs implement ShouldQueue — Laravel serializes them and pushes to the configured driver</li>
-    <li>Set <code>$tries</code>, <code>$backoff</code>, and <code>$timeout</code> on every job; implement <code>failed()</code> for alerting</li>
-    <li>Chains: sequential jobs, each waits for the previous; Batches: parallel jobs with progress tracking</li>
-    <li>Rate limiting middleware: throttle jobs to respect external API limits</li>
-    <li>Production: Supervisor for process management, Laravel Horizon for Redis queues with metrics</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Jobs implement ShouldQueue — Laravel serializes them and pushes to the configured driver',
+      'Set <code>$tries</code>, <code>$backoff</code>, and <code>$timeout</code> on every job; implement <code>failed()</code> for alerting',
+      'Chains: sequential jobs, each waits for the previous; Batches: parallel jobs with progress tracking',
+      'Rate limiting middleware: throttle jobs to respect external API limits',
+      'Production: Supervisor for process management, Laravel Horizon for Redis queues with metrics',
+    ]},
+  ],
 };

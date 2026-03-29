@@ -10,11 +10,9 @@ export default {
     'Replace if/switch type-dispatch chains with polymorphic class hierarchies',
     'Understand covariant return types (PHP 7.4+) and the static return type (PHP 8.0)',
   ],
-  body: `
-<h2>Runtime Polymorphism via Overriding</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">abstract class Notification {
+  segments: [
+    { type: 'h2', text: 'Runtime Polymorphism via Overriding' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `abstract class Notification {
     abstract public function send(string $message): void;
 }
 
@@ -33,14 +31,10 @@ class SlackNotification extends Notification {
 // Polymorphic dispatch — no if/switch needed
 function notify(Notification $n, string $msg): void {
     $n->send($msg); // PHP resolves to the correct subclass at runtime
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Interface Polymorphism</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">interface PaymentGateway {
+    { type: 'h2', text: 'Interface Polymorphism' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `interface PaymentGateway {
     public function charge(float $amount): string;
 }
 
@@ -55,14 +49,10 @@ class PayPalGateway implements PaymentGateway {
 // Adding a new gateway never touches this code — OCP satisfied
 function processPayment(PaymentGateway $gateway, float $amount): string {
     return $gateway->charge($amount);
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Late Static Binding: static:: vs self::</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class Base {
+    { type: 'h2', text: 'Late Static Binding: static:: vs self::' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `class Base {
     public static function create(): static { // PHP 8.0 static return type
         return new static(); // late static binding — resolves at call site
     }
@@ -76,27 +66,19 @@ function processPayment(PaymentGateway $gateway, float $amount): string {
 class Child extends Base {}
 
 $c = Child::create();   // Child instance, not Base
-echo Child::describe(); // "Child"
-</code></pre>
-</div>
+echo Child::describe(); // "Child"` },
 
-<h2>Replacing switch with Polymorphism</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Before</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// Every new type requires editing this function
+    { type: 'h2', text: 'Replacing switch with Polymorphism' },
+    { type: 'code', lang: 'php', label: 'PHP — Before', code: `// Every new type requires editing this function
 function renderWidget(string $type, array $data): string {
     return match ($type) {
         'chart' => renderChart($data),
         'table' => renderTable($data),
         'map'   => renderMap($data),
-        default => throw new \InvalidArgumentException("Unknown widget: $type"),
+        default => throw new \\InvalidArgumentException("Unknown widget: $type"),
     };
-}
-</code></pre>
-</div>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — After (open for extension)</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">interface Widget {
+}` },
+    { type: 'code', lang: 'php', label: 'PHP — After (open for extension)', code: `interface Widget {
     public function render(array $data): string;
 }
 
@@ -110,27 +92,21 @@ class TableWidget implements Widget {
 
 function renderWidget(Widget $widget, array $data): string {
     return $widget->render($data); // never needs to change
-}
-</code></pre>
-</div>
+}` },
 
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: What is covariant return type in PHP?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>PHP 7.4+ allows a child method to return a narrower type than the parent declared. If parent declares <code>: Animal</code>, child can return <code>: Dog</code>. The <code>static</code> return type (PHP 8.0) is the most powerful form — it resolves to the actual class at the call site, enabling fluent builder chains across inheritance hierarchies.</p></div>
-</div>
+    { type: 'qa', pairs: [
+      {
+        q: 'Q: What is covariant return type in PHP?',
+        a: 'PHP 7.4+ allows a child method to return a narrower type than the parent declared. If parent declares <code>: Animal</code>, child can return <code>: Dog</code>. The <code>static</code> return type (PHP 8.0) is the most powerful form — it resolves to the actual class at the call site, enabling fluent builder chains across inheritance hierarchies.',
+      },
+    ]},
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Polymorphism eliminates if/switch type-dispatch — add behaviour by adding a class (OCP)</li>
-    <li>Type-hint against interfaces, not concrete classes — enables swapping implementations (DIP)</li>
-    <li><code>static::</code> resolves at runtime to the actual called class; <code>self::</code> always resolves to the defining class</li>
-    <li>Covariant returns (PHP 7.4+): child can narrow the return type; <code>static</code> return type (PHP 8.0) for fluent APIs</li>
-    <li>Polymorphism + interfaces + dependency injection = loosely coupled, testable code</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Polymorphism eliminates if/switch type-dispatch — add behaviour by adding a class (OCP)',
+      'Type-hint against interfaces, not concrete classes — enables swapping implementations (DIP)',
+      '<code>static::</code> resolves at runtime to the actual called class; <code>self::</code> always resolves to the defining class',
+      'Covariant returns (PHP 7.4+): child can narrow the return type; <code>static</code> return type (PHP 8.0) for fluent APIs',
+      'Polymorphism + interfaces + dependency injection = loosely coupled, testable code',
+    ]},
+  ],
 };

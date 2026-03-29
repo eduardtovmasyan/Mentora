@@ -10,20 +10,16 @@ export default {
     'Implement caching for composer and Docker layers',
     'Set up environment-based deployments (staging/production)',
   ],
-  body: `
-<h2>Key Concepts</h2>
-<ul>
-  <li><strong>Workflow:</strong> YAML file in <code>.github/workflows/</code>. Triggered by events (push, PR, schedule).</li>
-  <li><strong>Job:</strong> A group of steps that run on the same runner. Jobs run in parallel by default.</li>
-  <li><strong>Step:</strong> Individual task — run a command or use a pre-built action.</li>
-  <li><strong>Runner:</strong> The machine that executes jobs. GitHub provides ubuntu-latest, windows-latest, macos-latest.</li>
-  <li><strong>Action:</strong> Reusable unit of work — <code>actions/checkout</code>, <code>aws-actions/configure-aws-credentials</code>.</li>
-</ul>
 
-<h2>Complete PHP/Laravel CI Pipeline</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">yaml — .github/workflows/ci.yml</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-yaml">name: CI/CD Pipeline
+  // ── Structure ────────────────────────────────────────────────────────────
+  // Segments define layout only. Text keys are resolved from bodyTexts below.
+  // Code segments are always English — never translated.
+  segments: [
+    { type: 'h2', key: 'h_concepts' },
+    { type: 'ul', key: 'ul_concepts' },
+
+    { type: 'h2', key: 'h_pipeline' },
+    { type: 'code', lang: 'yaml', label: '.github/workflows/ci.yml', code: `name: CI/CD Pipeline
 
 on:
   push:
@@ -143,29 +139,46 @@ jobs:
 
       - name: Deploy to ECS
         run: |
-          aws ecs update-service \
-            --cluster my-cluster \
-            --service my-app-service \
-            --force-new-deployment
-</code></pre>
-</div>
+          aws ecs update-service \\
+            --cluster my-cluster \\
+            --service my-app-service \\
+            --force-new-deployment` },
 
-<div class="callout callout-tip">
-  <div class="callout-title">Secrets Management</div>
-  <p>Store all credentials in GitHub Settings → Secrets. Access them as <code>\${{ secrets.MY_SECRET }}</code>. Secrets are masked in logs. Never hardcode API keys, passwords, or AWS credentials in your workflow YAML — they would be visible in your git history forever.</p>
-</div>
+    { type: 'callout', style: 'tip', key: 'callout_secrets' },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Workflow = YAML file in .github/workflows/. Triggered by git events.</li>
-    <li>Jobs run in parallel by default. Use <code>needs:</code> to create dependencies.</li>
-    <li>Matrix builds: test across multiple PHP/Node versions simultaneously</li>
-    <li>Always cache: composer vendor directory, Docker build layers</li>
-    <li>Use <code>environment: production</code> to require manual approval before deploy</li>
-    <li>Secrets: stored in GitHub Settings, accessed as \${{ secrets.NAME }}, masked in logs</li>
-    <li>Pull Request workflows: run tests on every PR. Deploy only on merge to main.</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', key: 'keypoints' },
+  ],
+
+  // ── English source text ──────────────────────────────────────────────────
+  // This is the English "locale". Russian/Armenian overrides live in ru.ts / hy.ts.
+  bodyTexts: {
+    h_concepts: 'Key Concepts',
+    ul_concepts: [
+      '<strong>Workflow:</strong> YAML file in <code>.github/workflows/</code>. Triggered by events (push, PR, schedule).',
+      '<strong>Job:</strong> A group of steps that run on the same runner. Jobs run in parallel by default.',
+      '<strong>Step:</strong> Individual task — run a command or use a pre-built action.',
+      '<strong>Runner:</strong> The machine that executes jobs. GitHub provides ubuntu-latest, windows-latest, macos-latest.',
+      '<strong>Action:</strong> Reusable unit of work — <code>actions/checkout</code>, <code>aws-actions/configure-aws-credentials</code>.',
+    ],
+
+    h_pipeline: 'Complete PHP/Laravel CI Pipeline',
+
+    callout_secrets: {
+      title: 'Secrets Management',
+      html: 'Store all credentials in GitHub Settings → Secrets. Access them as <code>${{ secrets.MY_SECRET }}</code>. Secrets are masked in logs. Never hardcode API keys, passwords, or AWS credentials in your workflow YAML — they would be visible in your git history forever.',
+    },
+
+    keypoints: {
+      title: 'Key Points to Remember',
+      items: [
+        'Workflow = YAML file in .github/workflows/. Triggered by git events.',
+        'Jobs run in parallel by default. Use <code>needs:</code> to create dependencies.',
+        'Matrix builds: test across multiple PHP/Node versions simultaneously',
+        'Always cache: composer vendor directory, Docker build layers',
+        'Use <code>environment: production</code> to require manual approval before deploy',
+        'Secrets: stored in GitHub Settings, accessed as ${{ secrets.NAME }}, masked in logs',
+        'Pull Request workflows: run tests on every PR. Deploy only on merge to main.',
+      ],
+    },
+  },
 };

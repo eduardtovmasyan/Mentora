@@ -10,15 +10,13 @@ export default {
     'Use abstract classes and interfaces to define stable extension points',
     'Know the trade-off: premature abstraction vs too-rigid code',
   ],
-  body: `
-<h2>The Principle</h2>
-<p><em>"A class should be open for extension, closed for modification."</em> — Bertrand Meyer, 1988</p>
-<p>Every time you modify existing code to add a feature, you risk introducing regressions. OCP says: design your extension points upfront so new features slot in without touching proven code.</p>
+  segments: [
+    { type: 'h2', text: 'The Principle' },
+    { type: 'p', html: '<em>"A class should be open for extension, closed for modification."</em> — Bertrand Meyer, 1988' },
+    { type: 'p', html: 'Every time you modify existing code to add a feature, you risk introducing regressions. OCP says: design your extension points upfront so new features slot in without touching proven code.' },
 
-<h2>OCP Violation — Growing Switch</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Bad: adding a discount type requires editing this class</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class OrderProcessor {
+    { type: 'h2', text: 'OCP Violation — Growing Switch' },
+    { type: 'code', lang: 'php', label: 'PHP — Bad: adding a discount type requires editing this class', code: `class OrderProcessor {
     public function calculateDiscount(Order $order): float {
         return match ($order->discountType) {
             'percentage' => $order->total * 0.10,
@@ -27,14 +25,10 @@ export default {
             // Adding 'seasonal' requires editing this class
         };
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>OCP Applied — Strategy Pattern</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Good: new discount = new class, zero edits elsewhere</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">interface DiscountStrategy {
+    { type: 'h2', text: 'OCP Applied — Strategy Pattern' },
+    { type: 'code', lang: 'php', label: 'PHP — Good: new discount = new class, zero edits elsewhere', code: `interface DiscountStrategy {
     public function calculate(float $total): float;
 }
 
@@ -63,14 +57,10 @@ class OrderProcessor {
 
 // Usage
 $processor = new OrderProcessor(new PercentageDiscount(0.10));
-$discount  = $processor->calculateDiscount(100.0); // 10.0
-</code></pre>
-</div>
+$discount  = $processor->calculateDiscount(100.0); // 10.0` },
 
-<h2>OCP with Abstract Classes</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Template Method pattern</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">abstract class ReportGenerator {
+    { type: 'h2', text: 'OCP with Abstract Classes' },
+    { type: 'code', lang: 'php', label: 'PHP — Template Method pattern', code: `abstract class ReportGenerator {
     // Template method — fixed algorithm, extensible steps
     final public function generate(array $data): string {
         $filtered  = $this->filter($data);
@@ -89,24 +79,16 @@ $discount  = $processor->calculateDiscount(100.0); // 10.0
 class CsvReportGenerator extends ReportGenerator {
     protected function filter(array $data): array { return array_filter($data); }
     protected function format(array $data): string { return implode(',', $data); }
-}
-</code></pre>
-</div>
+}` },
 
-<div class="callout callout-warn">
-  <div class="callout-title">Trade-off</div>
-  <p>Don't abstract everything upfront — that's the "premature abstraction" trap. Introduce OCP-compliant structure at the <em>second</em> time you add a type (rule of three). The first time, a simple if is fine.</p>
-</div>
+    { type: 'callout', style: 'warn', title: 'Trade-off', html: 'Don\'t abstract everything upfront — that\'s the "premature abstraction" trap. Introduce OCP-compliant structure at the <em>second</em> time you add a type (rule of three). The first time, a simple if is fine.' },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>OCP: add new behaviour by adding new code, not by modifying tested existing code</li>
-    <li>The red flag: a switch/match block that grows every time a new type is added</li>
-    <li>Fix with Strategy pattern: each type becomes a class implementing a common interface</li>
-    <li>Template Method is another OCP pattern — fixed algorithm, variable steps in subclasses</li>
-    <li>Don't over-engineer: abstract at the second variation, not the first</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'OCP: add new behaviour by adding new code, not by modifying tested existing code',
+      'The red flag: a switch/match block that grows every time a new type is added',
+      'Fix with Strategy pattern: each type becomes a class implementing a common interface',
+      'Template Method is another OCP pattern — fixed algorithm, variable steps in subclasses',
+      'Don\'t over-engineer: abstract at the second variation, not the first',
+    ]},
+  ],
 };

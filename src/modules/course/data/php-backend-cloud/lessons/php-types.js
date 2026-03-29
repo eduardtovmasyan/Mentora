@@ -10,11 +10,9 @@ export default {
     'Use readonly properties and readonly classes (PHP 8.2)',
     'Understand never return type and when to use it',
   ],
-  body: `
-<h2>Strict Types</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php"><?php declare(strict_types=1);
+  segments: [
+    { type: 'h2', text: 'Strict Types' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php declare(strict_types=1);
 
 // Without strict_types: PHP coerces "42" to int 42 silently
 // With strict_types: passing "42" to an int param throws TypeError
@@ -24,41 +22,29 @@ function add(int $a, int $b): int {
 }
 
 add(1, 2);    // OK
-add(1, "2");  // TypeError in strict mode, works without
-</code></pre>
-</div>
+add(1, "2");  // TypeError in strict mode, works without` },
 
-<h2>Union Types (PHP 8.0)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">function formatId(int|string $id): string {
+    { type: 'h2', text: 'Union Types (PHP 8.0)' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `function formatId(int|string $id): string {
     return (string) $id;
 }
 
 // Nullable is shorthand for Type|null
 function findUser(?int $id): ?User {  // equivalent to int|null
     return $id ? User::find($id) : null;
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Intersection Types (PHP 8.1)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">interface Countable { public function count(): int; }
+    { type: 'h2', text: 'Intersection Types (PHP 8.1)' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `interface Countable { public function count(): int; }
 interface Stringable { public function __toString(): string; }
 
 // Must implement both interfaces
 function display(Countable&Stringable $collection): void {
     echo "Count: {$collection->count()}, String: {$collection}";
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Enums (PHP 8.1)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// Pure enum
+    { type: 'h2', text: 'Enums (PHP 8.1)' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `// Pure enum
 enum Status {
     case Active;
     case Inactive;
@@ -92,14 +78,10 @@ $message = match ($status) {
 };
 
 // Enums are type-safe — no more magic string constants
-function activate(Status $status): void { /* ... */ }
-</code></pre>
-</div>
+function activate(Status $status): void { /* ... */ }` },
 
-<h2>Readonly Properties & Classes (PHP 8.1 / 8.2)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// PHP 8.1: readonly property (write once, in constructor)
+    { type: 'h2', text: 'Readonly Properties & Classes (PHP 8.1 / 8.2)' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `// PHP 8.1: readonly property (write once, in constructor)
 class User {
     public readonly string $name;
 
@@ -118,14 +100,10 @@ readonly class Point {
 }
 
 // Perfect for Value Objects — immutable by definition
-$p = new Point(1.5, 2.5);
-</code></pre>
-</div>
+$p = new Point(1.5, 2.5);` },
 
-<h2>never Return Type</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// never means the function never returns (throws or exits)
+    { type: 'h2', text: 'never Return Type' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `// never means the function never returns (throws or exits)
 function abort(int $code): never {
     http_response_code($code);
     exit;
@@ -134,19 +112,14 @@ function abort(int $code): never {
 function throwNotFound(): never {
     throw new NotFoundException();
 }
-// Useful for type-checker: callers know execution stops here
-</code></pre>
-</div>
+// Useful for type-checker: callers know execution stops here` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Always add <code>declare(strict_types=1)</code> at the top of every PHP file in a project</li>
-    <li>Union types: <code>int|string</code>; Nullable shorthand: <code>?Type</code> = <code>Type|null</code></li>
-    <li>Intersection types: <code>A&B</code> — value must implement both; cannot mix union and intersection without DNF (PHP 8.2)</li>
-    <li>Backed enums replace string/int constants — type-safe, IDE-friendly, have methods</li>
-    <li>Readonly properties enforce immutability without a custom clone/copy pattern</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Always add <code>declare(strict_types=1)</code> at the top of every PHP file in a project',
+      'Union types: <code>int|string</code>; Nullable shorthand: <code>?Type</code> = <code>Type|null</code>',
+      'Intersection types: <code>A&B</code> — value must implement both; cannot mix union and intersection without DNF (PHP 8.2)',
+      'Backed enums replace string/int constants — type-safe, IDE-friendly, have methods',
+      'Readonly properties enforce immutability without a custom clone/copy pattern',
+    ]},
+  ],
 };

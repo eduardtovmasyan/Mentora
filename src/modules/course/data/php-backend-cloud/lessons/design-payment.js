@@ -10,11 +10,9 @@ export default {
     'Implement double-entry bookkeeping for financial accuracy',
     'Design reconciliation jobs to detect and fix discrepancies',
   ],
-  body: `
-<h2>Idempotency Keys</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Idempotent payment endpoint</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class PaymentController extends Controller {
+  segments: [
+    { type: 'h2', text: 'Idempotency Keys' },
+    { type: 'code', lang: 'php', label: 'PHP — Idempotent payment endpoint', code: `class PaymentController extends Controller {
     public function charge(Request $request): JsonResponse {
         $idempotencyKey = $request->header('Idempotency-Key')
             ?? throw new BadRequestException('Idempotency-Key header required');
@@ -51,14 +49,10 @@ export default {
             }
         });
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Saga Pattern (Distributed Transaction)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Choreography-based Saga</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// Step 1: Reserve inventory (emits InventoryReservedEvent)
+    { type: 'h2', text: 'Saga Pattern (Distributed Transaction)' },
+    { type: 'code', lang: 'php', label: 'PHP — Choreography-based Saga', code: `// Step 1: Reserve inventory (emits InventoryReservedEvent)
 class ReserveInventoryCommand implements ShouldQueue {
     public function handle(): void {
         $reserved = Inventory::reserve($this->orderId, $this->items);
@@ -82,14 +76,10 @@ class ProcessPaymentListener implements ShouldQueue {
             ReleaseInventoryCommand::dispatch($event->orderId);
         }
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Webhook Handling</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Safe webhook processing</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class StripeWebhookController extends Controller {
+    { type: 'h2', text: 'Webhook Handling' },
+    { type: 'code', lang: 'php', label: 'PHP — Safe webhook processing', code: `class StripeWebhookController extends Controller {
     public function handle(Request $request): Response {
         // 1. Verify signature (prevent spoofed webhooks)
         try {
@@ -113,14 +103,10 @@ class ProcessPaymentListener implements ShouldQueue {
 
         return response('OK', 200);
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Double-Entry Bookkeeping</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">SQL — Ledger table</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-sql">CREATE TABLE ledger (
+    { type: 'h2', text: 'Double-Entry Bookkeeping' },
+    { type: 'code', lang: 'sql', label: 'SQL — Ledger table', code: `CREATE TABLE ledger (
     id          BIGSERIAL PRIMARY KEY,
     account_id  BIGINT NOT NULL,
     amount      NUMERIC(19,4) NOT NULL, -- positive=credit, negative=debit
@@ -135,19 +121,14 @@ INSERT INTO ledger (account_id, amount, description, reference) VALUES
     (revenue_account,  +50.00, 'Order payment', 'order_123');
 
 -- Balance is always derivable (never stored, always calculated)
-SELECT SUM(amount) FROM ledger WHERE account_id = ?;
-</code></pre>
-</div>
+SELECT SUM(amount) FROM ledger WHERE account_id = ?;` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Idempotency keys: client generates UUID, server stores it — duplicate requests return same result</li>
-    <li>Saga pattern: chain of local transactions with compensating transactions on failure</li>
-    <li>Webhooks: verify signature, return 200 immediately, process async — Stripe retries on non-2xx</li>
-    <li>Double-entry: every transaction has two ledger entries summing to zero — balance always derivable</li>
-    <li>Never store computed balances — derive from ledger to prevent reconciliation errors</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Idempotency keys: client generates UUID, server stores it — duplicate requests return same result',
+      'Saga pattern: chain of local transactions with compensating transactions on failure',
+      'Webhooks: verify signature, return 200 immediately, process async — Stripe retries on non-2xx',
+      'Double-entry: every transaction has two ledger entries summing to zero — balance always derivable',
+      'Never store computed balances — derive from ledger to prevent reconciliation errors',
+    ]},
+  ],
 };

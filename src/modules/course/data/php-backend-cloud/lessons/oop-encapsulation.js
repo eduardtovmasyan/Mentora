@@ -10,18 +10,16 @@ export default {
     'Design a fully encapsulated Value Object (Money, Email)',
     'Explain the difference between a getter and a query method',
   ],
-  body: `
-<h2>What Is Encapsulation?</h2>
-<p>Encapsulation means hiding internal state and requiring all interaction to go through a defined public interface. You expose <em>what</em> an object can do, but hide <em>how</em> it stores and processes data. This gives you two critical benefits:</p>
-<ul>
-  <li><strong>Control:</strong> All writes are validated. Invalid state becomes impossible.</li>
-  <li><strong>Freedom to refactor:</strong> Change the internals without breaking callers.</li>
-</ul>
+  segments: [
+    { type: 'h2', text: 'What Is Encapsulation?' },
+    { type: 'p', html: 'Encapsulation means hiding internal state and requiring all interaction to go through a defined public interface. You expose <em>what</em> an object can do, but hide <em>how</em> it stores and processes data. This gives you two critical benefits:' },
+    { type: 'ul', items: [
+      '<strong>Control:</strong> All writes are validated. Invalid state becomes impossible.',
+      '<strong>Freedom to refactor:</strong> Change the internals without breaking callers.',
+    ]},
 
-<h2>Access Modifiers</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Access Modifiers</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Access Modifiers' },
+    { type: 'code', lang: 'php', label: 'PHP — Access Modifiers', code: `&lt;?php
 class BankAccount
 {
     public  string $owner;      // accessible from anywhere
@@ -40,15 +38,15 @@ class BankAccount
 
     public function deposit(float $amount): void
     {
-        if ($amount <= 0) throw new \InvalidArgumentException('Deposit must be positive');
+        if ($amount <= 0) throw new \\InvalidArgumentException('Deposit must be positive');
         $this->balance += $amount;
         $this->record('deposit', $amount);
     }
 
     public function withdraw(float $amount, string $pin): void
     {
-        if (!password_verify($pin, $this->pin)) throw new \RuntimeException('Bad PIN');
-        if ($amount > $this->balance)           throw new \RuntimeException('Insufficient funds');
+        if (!password_verify($pin, $this->pin)) throw new \\RuntimeException('Bad PIN');
+        if ($amount > $this->balance)           throw new \\RuntimeException('Insufficient funds');
         $this->balance -= $amount;
         $this->record('withdrawal', $amount);
     }
@@ -63,14 +61,10 @@ $acc = new BankAccount('Ali', 1000.0, '1234');
 echo $acc->getBalance();      // ✓ 1000
 $acc->deposit(500);           // ✓ validated
 // $acc->balance = 999999;    // ✗ Cannot access protected property
-// $acc->pin = 'hacked';      // ✗ Cannot access private property
-</code></pre>
-</div>
+// $acc->pin = 'hacked';      // ✗ Cannot access private property` },
 
-<h2>Why Public Properties Are Dangerous</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Public vs Encapsulated</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Why Public Properties Are Dangerous' },
+    { type: 'code', lang: 'php', label: 'PHP — Public vs Encapsulated', code: `&lt;?php
 // ✗ No control — anyone can set invalid state
 class BadUser { public int $age; }
 $u = new BadUser();
@@ -82,7 +76,7 @@ class GoodUser
     private int $age;
     public function setAge(int $age): void
     {
-        if ($age < 0 || $age > 150) throw new \InvalidArgumentException("Invalid age: {$age}");
+        if ($age < 0 || $age > 150) throw new \\InvalidArgumentException("Invalid age: {$age}");
         $this->age = $age;
     }
     public function getAge(): int { return $this->age; }
@@ -98,15 +92,11 @@ class ImmutableUser
     ) {}
 }
 $user = new ImmutableUser(1, 'ali@example.com', 'Ali');
-// $user->id = 2; // ✗ Fatal: Cannot modify readonly property
-</code></pre>
-</div>
+// $user->id = 2; // ✗ Fatal: Cannot modify readonly property` },
 
-<h2>Value Object — Perfect Encapsulation</h2>
-<p>A Value Object is immutable, validated at creation, and equal by value (not identity). Use for domain concepts: Money, Email, PhoneNumber, Coordinates.</p>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Money Value Object</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Value Object — Perfect Encapsulation' },
+    { type: 'p', html: 'A Value Object is immutable, validated at creation, and equal by value (not identity). Use for domain concepts: Money, Email, PhoneNumber, Coordinates.' },
+    { type: 'code', lang: 'php', label: 'PHP — Money Value Object', code: `&lt;?php
 final class Money
 {
     private function __construct(
@@ -116,9 +106,9 @@ final class Money
 
     public static function of(int $cents, string $currency): self
     {
-        if ($cents < 0) throw new \InvalidArgumentException('Money cannot be negative');
+        if ($cents < 0) throw new \\InvalidArgumentException('Money cannot be negative');
         if (!in_array($currency, ['USD','EUR','AMD','GBP'], true)) {
-            throw new \InvalidArgumentException("Unknown currency: {$currency}");
+            throw new \\InvalidArgumentException("Unknown currency: {$currency}");
         }
         return new self($cents, $currency);
     }
@@ -137,7 +127,7 @@ final class Money
 
     public function equals(self $other): bool
     {
-        return $this->cents === $other->cents && $this->currency === $other->currency;
+        return $this->cents === $other->cents &amp;&amp; $this->currency === $other->currency;
     }
 
     public function format(): string { return number_format($this->cents / 100, 2) . ' ' . $this->currency; }
@@ -145,7 +135,7 @@ final class Money
     private function assertSameCurrency(self $other): void
     {
         if ($this->currency !== $other->currency) {
-            throw new \RuntimeException("Currency mismatch");
+            throw new \\RuntimeException("Currency mismatch");
         }
     }
 }
@@ -153,30 +143,27 @@ final class Money
 $price = Money::of(1999, 'USD');  // $19.99
 $tax   = Money::of(160,  'USD');  // $1.60
 $total = $price->add($tax);        // new Money — $price unchanged
-echo $total->format();             // 21.59 USD
-</code></pre>
-</div>
+echo $total->format();             // 21.59 USD` },
 
-<h2>Interview Questions</h2>
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)"><span class="qa-q-text">Q: What is the difference between private and protected?</span><span class="qa-arrow">▼</span></div>
-  <div class="qa-a"><p><code>private</code>: accessible only in the declaring class. Not in child classes. <code>protected</code>: accessible in the declaring class AND all subclasses. Default to <code>private</code> — only widen to <code>protected</code> when a subclass genuinely needs access. Exposing too much to subclasses creates hidden coupling that makes refactoring painful.</p></div>
-</div>
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)"><span class="qa-q-text">Q: Why store money as integer cents, never float?</span><span class="qa-arrow">▼</span></div>
-  <div class="qa-a"><p>Floating-point numbers cannot represent most decimal fractions exactly in binary. <code>0.1 + 0.2</code> gives <code>0.30000000000000004</code>. For financial calculations, even tiny rounding errors compound into real discrepancies. Store as integer cents (1999 = $19.99). All arithmetic is exact integer arithmetic. Divide by 100 only at the display layer.</p></div>
-</div>
+    { type: 'h2', text: 'Interview Questions' },
+    { type: 'qa', pairs: [
+      {
+        q: 'Q: What is the difference between private and protected?',
+        a: '<code>private</code>: accessible only in the declaring class. Not in child classes. <code>protected</code>: accessible in the declaring class AND all subclasses. Default to <code>private</code> — only widen to <code>protected</code> when a subclass genuinely needs access. Exposing too much to subclasses creates hidden coupling that makes refactoring painful.',
+      },
+      {
+        q: 'Q: Why store money as integer cents, never float?',
+        a: 'Floating-point numbers cannot represent most decimal fractions exactly in binary. <code>0.1 + 0.2</code> gives <code>0.30000000000000004</code>. For financial calculations, even tiny rounding errors compound into real discrepancies. Store as integer cents (1999 = $19.99). All arithmetic is exact integer arithmetic. Divide by 100 only at the display layer.',
+      },
+    ]},
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>private: this class only. protected: this class + subclasses. public: anywhere</li>
-    <li>Default to private — only widen when there is a concrete reason</li>
-    <li>PHP 8.1 readonly: set once in constructor, immutable forever after</li>
-    <li>Constructor promotion: add visibility modifier to constructor param → auto-creates property</li>
-    <li>Value Objects: immutable, validated at creation, equality by value not identity</li>
-    <li>Store money as integer cents. Divide by 100 only at display time.</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'private: this class only. protected: this class + subclasses. public: anywhere',
+      'Default to private — only widen when there is a concrete reason',
+      'PHP 8.1 readonly: set once in constructor, immutable forever after',
+      'Constructor promotion: add visibility modifier to constructor param → auto-creates property',
+      'Value Objects: immutable, validated at creation, equality by value not identity',
+      'Store money as integer cents. Divide by 100 only at display time.',
+    ]},
+  ],
 };

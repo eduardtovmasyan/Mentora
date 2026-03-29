@@ -10,11 +10,9 @@ export default {
     'Manage secrets in ECS via AWS Secrets Manager (not environment variables)',
     'Deploy a new image version via CI/CD: build → push to ECR → force new deployment',
   ],
-  body: `
-<h2>ECS Architecture</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">Architecture overview</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">Internet
+  segments: [
+    { type: 'h2', text: 'ECS Architecture' },
+    { type: 'code', lang: 'bash', label: 'Architecture overview', code: `Internet
   ↓
 ALB (Application Load Balancer)
   ↓
@@ -24,14 +22,10 @@ ECS Service (desired: 3 tasks)
   └── Task 3 (Fargate)
        ↓
   RDS (private subnet)
-  Redis (ElastiCache)
-</code></pre>
-</div>
+  Redis (ElastiCache)` },
 
-<h2>Task Definition (Terraform)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">HCL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">resource "aws_ecs_task_definition" "app" {
+    { type: 'h2', text: 'Task Definition (Terraform)' },
+    { type: 'code', lang: 'bash', label: 'HCL', code: `resource "aws_ecs_task_definition" "app" {
   family                   = "my-app"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
@@ -72,14 +66,10 @@ ECS Service (desired: 3 tasks)
       startPeriod = 60
     }
   }])
-}
-</code></pre>
-</div>
+}` },
 
-<h2>ECS Service with Auto Scaling</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">HCL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">resource "aws_ecs_service" "app" {
+    { type: 'h2', text: 'ECS Service with Auto Scaling' },
+    { type: 'code', lang: 'bash', label: 'HCL', code: `resource "aws_ecs_service" "app" {
   name            = "my-app"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.app.arn
@@ -124,37 +114,28 @@ resource "aws_appautoscaling_policy" "cpu" {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
   }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>CI/CD Deployment</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">bash — GitHub Actions deploy</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin $ECR_URL
+    { type: 'h2', text: 'CI/CD Deployment' },
+    { type: 'code', lang: 'bash', label: 'bash — GitHub Actions deploy', code: `aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin $ECR_URL
 docker build -t $ECR_URL:$GITHUB_SHA .
 docker push $ECR_URL:$GITHUB_SHA
 
 # Update task definition with new image tag
-aws ecs update-service \
-  --cluster my-cluster \
-  --service my-app \
+aws ecs update-service \\
+  --cluster my-cluster \\
+  --service my-app \\
   --force-new-deployment
 
 # Wait for deployment to stabilize
-aws ecs wait services-stable --cluster my-cluster --services my-app
-</code></pre>
-</div>
+aws ecs wait services-stable --cluster my-cluster --services my-app` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Task definition = container spec (image, CPU, memory, env, secrets, ports)</li>
-    <li>ECS service maintains desired count, health checks, rolling deploys</li>
-    <li>Use Secrets Manager (not env vars) for sensitive values — ECS injects at runtime</li>
-    <li>Two IAM roles: execution role (ECS agent permissions) and task role (app permissions)</li>
-    <li>Auto scaling: target tracking (CPU/memory) or step scaling (custom metric)</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Task definition = container spec (image, CPU, memory, env, secrets, ports)',
+      'ECS service maintains desired count, health checks, rolling deploys',
+      'Use Secrets Manager (not env vars) for sensitive values — ECS injects at runtime',
+      'Two IAM roles: execution role (ECS agent permissions) and task role (app permissions)',
+      'Auto scaling: target tracking (CPU/memory) or step scaling (custom metric)',
+    ]},
+  ],
 };

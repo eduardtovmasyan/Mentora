@@ -10,15 +10,13 @@ export default {
     'Apply the "is substitutable for" test instead of the naive "is a" test',
     'Fix LSP violations by redesigning the hierarchy or extracting an interface',
   ],
-  body: `
-<h2>The Principle</h2>
-<p><em>"If S is a subtype of T, then objects of type T may be replaced with objects of type S without altering correctness."</em> — Barbara Liskov, 1987</p>
-<p>Test: can you swap any subclass into code written for the parent, with no surprises?</p>
+  segments: [
+    { type: 'h2', text: 'The Principle' },
+    { type: 'p', html: '<em>"If S is a subtype of T, then objects of type T may be replaced with objects of type S without altering correctness."</em> — Barbara Liskov, 1987' },
+    { type: 'p', html: 'Test: can you swap any subclass into code written for the parent, with no surprises?' },
 
-<h2>Classic Violation: Rectangle / Square</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Violation</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class Rectangle {
+    { type: 'h2', text: 'Classic Violation: Rectangle / Square' },
+    { type: 'code', lang: 'php', label: 'PHP — Violation', code: `class Rectangle {
     protected int $width;
     protected int $height;
 
@@ -38,14 +36,10 @@ function testRectangle(Rectangle $r): void {
     $r->setWidth(5);
     $r->setHeight(4);
     assert($r->area() === 20); // FAILS for Square — area is 16, not 20
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Fix: Separate Interfaces</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — LSP-compliant</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">interface Shape {
+    { type: 'h2', text: 'Fix: Separate Interfaces' },
+    { type: 'code', lang: 'php', label: 'PHP — LSP-compliant', code: `interface Shape {
     public function area(): int;
 }
 
@@ -62,14 +56,10 @@ class Square implements Shape {
 // Both substitutable for Shape — no surprises
 function printArea(Shape $s): void {
     echo $s->area();
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Precondition / Postcondition Rules</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Violation: subclass narrows accepted input</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class FileLogger {
+    { type: 'h2', text: 'Precondition / Postcondition Rules' },
+    { type: 'code', lang: 'php', label: 'PHP — Violation: subclass narrows accepted input', code: `class FileLogger {
     public function log(string $message): void { /* writes to file */ }
 }
 
@@ -80,32 +70,23 @@ class StrictFileLogger extends FileLogger {
         }
         parent::log($message);
     }
-}
-</code></pre>
-</div>
+}` },
 
-<div class="callout callout-info">
-  <div class="callout-title">Covariance and Contravariance</div>
-  <p><strong>Return types</strong> can be covariant (narrowed in subclasses) — if parent returns <code>Animal</code>, child may return <code>Dog</code>. <strong>Parameter types</strong> should be contravariant (same or wider) — if parent accepts <code>Dog</code>, child should accept <code>Animal</code>. PHP 8.0+ enforces covariant returns and contravariant parameters.</p>
-</div>
+    { type: 'callout', style: 'info', title: 'Covariance and Contravariance', html: '<strong>Return types</strong> can be covariant (narrowed in subclasses) — if parent returns <code>Animal</code>, child may return <code>Dog</code>. <strong>Parameter types</strong> should be contravariant (same or wider) — if parent accepts <code>Dog</code>, child should accept <code>Animal</code>. PHP 8.0+ enforces covariant returns and contravariant parameters.' },
 
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: How does LSP relate to the "is-a" relationship?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>A Square mathematically "is a" Rectangle, but behaviourally it is not substitutable — which violates LSP. Use the <em>"is substitutable for"</em> test instead of "is a". Inheritance should model behavioural compatibility, not just conceptual classification.</p></div>
-</div>
+    { type: 'qa', pairs: [
+      {
+        q: 'Q: How does LSP relate to the "is-a" relationship?',
+        a: 'A Square mathematically "is a" Rectangle, but behaviourally it is not substitutable — which violates LSP. Use the <em>"is substitutable for"</em> test instead of "is a". Inheritance should model behavioural compatibility, not just conceptual classification.',
+      },
+    ]},
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>LSP: subclass must honour the parent's contract — no extra preconditions, no broken postconditions</li>
-    <li>Square extends Rectangle is the textbook violation — Square can't honour setWidth/setHeight independently</li>
-    <li>Fix violations by flattening the hierarchy and using shared interfaces instead of inheritance</li>
-    <li>Subclass may not throw exceptions the parent doesn't declare</li>
-    <li>Test: replace every parent usage with a subclass — should all existing tests still pass?</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'LSP: subclass must honour the parent\'s contract — no extra preconditions, no broken postconditions',
+      'Square extends Rectangle is the textbook violation — Square can\'t honour setWidth/setHeight independently',
+      'Fix violations by flattening the hierarchy and using shared interfaces instead of inheritance',
+      'Subclass may not throw exceptions the parent doesn\'t declare',
+      'Test: replace every parent usage with a subclass — should all existing tests still pass?',
+    ]},
+  ],
 };

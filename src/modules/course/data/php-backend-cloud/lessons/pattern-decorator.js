@@ -10,14 +10,12 @@ export default {
     'Identify real-world PHP decorators: PSR-15 middleware, monolog handlers, cache layers',
     'Know when to use Decorator vs Proxy vs Strategy',
   ],
-  body: `
-<h2>Structure</h2>
-<p>All decorators and the concrete component implement the same interface. The decorator holds a reference to the wrapped component and delegates to it, adding behaviour before/after.</p>
+  segments: [
+    { type: 'h2', text: 'Structure' },
+    { type: 'p', html: 'All decorators and the concrete component implement the same interface. The decorator holds a reference to the wrapped component and delegates to it, adding behaviour before/after.' },
 
-<h2>Example: Logger Decorators</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">interface Logger {
+    { type: 'h2', text: 'Example: Logger Decorators' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `interface Logger {
     public function log(string $level, string $message): void;
 }
 
@@ -67,14 +65,10 @@ $logger = new TimestampLogger(
 
 $logger->log('debug',   'Cache hit');   // filtered out
 $logger->log('warning', 'Disk 90%');    // logged with timestamp
-$logger->log('error',   'DB timeout');  // logged with timestamp
-</code></pre>
-</div>
+$logger->log('error',   'DB timeout');  // logged with timestamp` },
 
-<h2>HTTP Middleware as Decorator (PSR-15)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — PSR-15 middleware is Decorator in disguise</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+    { type: 'h2', text: 'HTTP Middleware as Decorator (PSR-15)' },
+    { type: 'code', lang: 'php', label: 'PHP — PSR-15 middleware is Decorator in disguise', code: `use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 class AuthMiddleware implements MiddlewareInterface {
@@ -87,14 +81,10 @@ class AuthMiddleware implements MiddlewareInterface {
         }
         return $handler->handle($request); // delegate to next handler
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Caching Decorator</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">interface UserRepository {
+    { type: 'h2', text: 'Caching Decorator' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `interface UserRepository {
     public function find(int $id): ?User;
 }
 
@@ -113,19 +103,14 @@ class CachingUserRepository implements UserRepository {
 }
 
 // Transparent to callers — they just see UserRepository
-$repo = new CachingUserRepository(new DatabaseUserRepository($db), $cache);
-</code></pre>
-</div>
+$repo = new CachingUserRepository(new DatabaseUserRepository($db), $cache);` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Decorator wraps a component in objects that implement the same interface — transparent to callers</li>
-    <li>Decorators are composable: stack them like layers, each adding one responsibility</li>
-    <li>Favours composition over inheritance — avoids combinatorial subclass explosion</li>
-    <li>Real PHP examples: PSR-15 middleware, Monolog handlers, Laravel cache/queue decorators</li>
-    <li>Difference from Proxy: Decorator adds behaviour; Proxy controls access (auth, lazy loading, remote)</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Decorator wraps a component in objects that implement the same interface — transparent to callers',
+      'Decorators are composable: stack them like layers, each adding one responsibility',
+      'Favours composition over inheritance — avoids combinatorial subclass explosion',
+      'Real PHP examples: PSR-15 middleware, Monolog handlers, Laravel cache/queue decorators',
+      'Difference from Proxy: Decorator adds behaviour; Proxy controls access (auth, lazy loading, remote)',
+    ]},
+  ],
 };

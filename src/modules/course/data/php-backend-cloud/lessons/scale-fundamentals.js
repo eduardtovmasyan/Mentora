@@ -10,17 +10,15 @@ export default {
     'Explain CAP theorem with a concrete example',
     'Design for stateless services to enable horizontal scaling',
   ],
-  body: `
-<h2>Horizontal vs Vertical Scaling</h2>
-<ul>
-  <li><strong>Vertical scaling (scale up):</strong> Bigger server — more CPU, RAM, faster storage. Simple, no code changes, but has a hard limit and single point of failure. Good for: databases (initially).</li>
-  <li><strong>Horizontal scaling (scale out):</strong> More servers. Unlimited ceiling, fault tolerant. Requires stateless application design and a load balancer. Good for: web/API servers, workers.</li>
-</ul>
+  segments: [
+    { type: 'h2', text: 'Horizontal vs Vertical Scaling' },
+    { type: 'ul', items: [
+      '<strong>Vertical scaling (scale up):</strong> Bigger server — more CPU, RAM, faster storage. Simple, no code changes, but has a hard limit and single point of failure. Good for: databases (initially).',
+      '<strong>Horizontal scaling (scale out):</strong> More servers. Unlimited ceiling, fault tolerant. Requires stateless application design and a load balancer. Good for: web/API servers, workers.',
+    ]},
 
-<h2>Latency Numbers Every Developer Should Know</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">Reference — Latency Numbers</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">L1 cache reference              ~0.5 ns
+    { type: 'h2', text: 'Latency Numbers Every Developer Should Know' },
+    { type: 'code', lang: 'bash', label: 'Reference — Latency Numbers', code: `L1 cache reference              ~0.5 ns
 L2 cache reference              ~7 ns
 RAM access                      ~100 ns        (200x L1 cache)
 SSD random read                 ~100 µs        (1,000x RAM)
@@ -33,14 +31,10 @@ Packet New York → Europe        ~150 ms
 # Rules of thumb:
 # Memory is fast. Disk is slow. Network is in between.
 # A database query hitting disk = 10ms+ before your query logic runs
-# Cache everything that's expensive to recompute
-</code></pre>
-</div>
+# Cache everything that's expensive to recompute` },
 
-<h2>Back-of-Envelope Estimation</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">System Design — Estimation Example</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash"># Example: Design Twitter. Estimate scale first.
+    { type: 'h2', text: 'Back-of-Envelope Estimation' },
+    { type: 'code', lang: 'bash', label: 'System Design — Estimation Example', code: `# Example: Design Twitter. Estimate scale first.
 
 # Users:
 # 300M monthly active users
@@ -71,33 +65,28 @@ Packet New York → Europe        ~150 ms
 # - Need sharded database (9TB/year, 1,750 writes/s)
 # - Need massive CDN for media (8.7 GB/s)
 # - Need Redis caching for home timeline (175k reads/s impossible without cache)
-# - Stateless API servers behind load balancer
-</code></pre>
-</div>
+# - Stateless API servers behind load balancer` },
 
-<h2>CAP Theorem</h2>
-<p>In a distributed system you can have at most TWO of:</p>
-<ul>
-  <li><strong>Consistency:</strong> Every read gets the most recent write (or an error)</li>
-  <li><strong>Availability:</strong> Every request gets a response (not guaranteed to be latest)</li>
-  <li><strong>Partition tolerance:</strong> System works even when network partitions occur</li>
-</ul>
-<p>Network partitions always happen in real distributed systems — so the real choice is: <strong>CP</strong> (consistent + partition tolerant, may be unavailable) or <strong>AP</strong> (available + partition tolerant, may return stale data).</p>
-<ul>
-  <li>CP examples: HBase, Zookeeper — refuse requests during partition to stay consistent</li>
-  <li>AP examples: Cassandra, DynamoDB — stay available, risk returning stale data</li>
-</ul>
+    { type: 'h2', text: 'CAP Theorem' },
+    { type: 'p', html: 'In a distributed system you can have at most TWO of:' },
+    { type: 'ul', items: [
+      '<strong>Consistency:</strong> Every read gets the most recent write (or an error)',
+      '<strong>Availability:</strong> Every request gets a response (not guaranteed to be latest)',
+      '<strong>Partition tolerance:</strong> System works even when network partitions occur',
+    ]},
+    { type: 'p', html: 'Network partitions always happen in real distributed systems — so the real choice is: <strong>CP</strong> (consistent + partition tolerant, may be unavailable) or <strong>AP</strong> (available + partition tolerant, may return stale data).' },
+    { type: 'ul', items: [
+      'CP examples: HBase, Zookeeper — refuse requests during partition to stay consistent',
+      'AP examples: Cassandra, DynamoDB — stay available, risk returning stale data',
+    ]},
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Vertical scaling: bigger machine. Horizontal: more machines. Most systems start vertical, go horizontal.</li>
-    <li>RAM access ~100ns. SSD ~100µs. Network ~1ms. Know these for estimation.</li>
-    <li>Back-of-envelope: estimate DAU, then QPS (DAU * ops_per_day / 86400), then storage</li>
-    <li>Stateless services: no server-side session state → any server can handle any request → horizontal scaling works</li>
-    <li>CAP: in practice, choose CP (consistent) or AP (available) during network partition</li>
-    <li>Always state assumptions before estimating in system design interviews</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Vertical scaling: bigger machine. Horizontal: more machines. Most systems start vertical, go horizontal.',
+      'RAM access ~100ns. SSD ~100µs. Network ~1ms. Know these for estimation.',
+      'Back-of-envelope: estimate DAU, then QPS (DAU * ops_per_day / 86400), then storage',
+      'Stateless services: no server-side session state → any server can handle any request → horizontal scaling works',
+      'CAP: in practice, choose CP (consistent) or AP (available) during network partition',
+      'Always state assumptions before estimating in system design interviews',
+    ]},
+  ],
 };

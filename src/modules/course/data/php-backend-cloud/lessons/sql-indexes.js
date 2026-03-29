@@ -11,13 +11,11 @@ export default {
     'Identify the "function on indexed column" anti-pattern',
     'Know when NOT to add an index',
   ],
-  body: `
-<h2>How B-Tree Indexes Work</h2>
-<p>A B-tree index is a <strong>separate sorted data structure</strong> with pointers back to table rows. Like a book's index — instead of reading every page to find "authentication", jump directly to the page number. B-tree lookup is <strong>O(log n)</strong>. For 1M rows: ~20 comparisons vs 1,000,000 without an index.</p>
+  segments: [
+    { type: 'h2', text: 'How B-Tree Indexes Work' },
+    { type: 'p', html: 'A B-tree index is a <strong>separate sorted data structure</strong> with pointers back to table rows. Like a book\'s index — instead of reading every page to find "authentication", jump directly to the page number. B-tree lookup is <strong>O(log n)</strong>. For 1M rows: ~20 comparisons vs 1,000,000 without an index.' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">SQL — Creating Indexes</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-sql">-- Single column
+    { type: 'code', lang: 'sql', label: 'SQL — Creating Indexes', code: `-- Single column
 CREATE INDEX idx_users_email ON users (email);
 CREATE UNIQUE INDEX idx_users_email ON users (email);
 
@@ -40,14 +38,10 @@ SELECT * FROM orders WHERE created_at > '2024-01-01';
 -- MySQL never touches the actual table row → fastest possible
 CREATE INDEX idx_orders_covering ON orders (customer_id, status, total);
 EXPLAIN SELECT SUM(total) FROM orders WHERE customer_id = 5 AND status = 'completed';
--- Extra: "Using index" ← never hit the table
-</code></pre>
-</div>
+-- Extra: "Using index" ← never hit the table` },
 
-<h2>Reading EXPLAIN</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">SQL — EXPLAIN Output</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-sql">EXPLAIN SELECT * FROM users WHERE email = 'ali@example.com';
+    { type: 'h2', text: 'Reading EXPLAIN' },
+    { type: 'code', lang: 'sql', label: 'SQL — EXPLAIN Output', code: `EXPLAIN SELECT * FROM users WHERE email = 'ali@example.com';
 
 -- type column (BEST → WORST):
 -- const    → primary key / unique index — single row — fastest
@@ -76,14 +70,10 @@ EXPLAIN SELECT * FROM users WHERE YEAR(created_at) = 2024;
 -- GOOD: let MySQL use a range on the raw column
 EXPLAIN SELECT * FROM users
 WHERE created_at BETWEEN '2024-01-01' AND '2024-12-31 23:59:59';
--- type: range
-</code></pre>
-</div>
+-- type: range` },
 
-<h2>Golden Rules</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">SQL — Indexing Rules</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-sql">-- RULE 1: Never wrap indexed columns in functions
+    { type: 'h2', text: 'Golden Rules' },
+    { type: 'code', lang: 'sql', label: 'SQL — Indexing Rules', code: `-- RULE 1: Never wrap indexed columns in functions
 -- ✗ BAD:
 WHERE LOWER(email) = 'ali@example.com'   -- index on email is useless
 WHERE DATE(created_at) = '2024-01-15'    -- index on created_at is useless
@@ -109,29 +99,26 @@ CREATE INDEX bad  ON orders (created_at, status); -- range on created_at blocks 
 SELECT * FROM orders ORDER BY id LIMIT 10 OFFSET 100000;
 
 -- ✓ GOOD: keyset pagination — always O(log n)
-SELECT * FROM orders WHERE id > :last_seen_id ORDER BY id LIMIT 10;
-</code></pre>
-</div>
+SELECT * FROM orders WHERE id > :last_seen_id ORDER BY id LIMIT 10;` },
 
-<h2>Interview Questions</h2>
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)"><span class="qa-q-text">Q: A query is slow. Walk me through your debugging process.</span><span class="qa-arrow">▼</span></div>
-  <div class="qa-a"><p>Step 1: run EXPLAIN. Look at type (ALL = bad), key (NULL = no index), rows (high = scanning many). Step 2: check if WHERE/JOIN columns are indexed. Step 3: check for functions on indexed columns. Step 4: check composite index column order matches your query's equality/range split. Step 5: check Extra for "Using filesort" or "Using temporary". Step 6: add or adjust indexes, re-run EXPLAIN to verify improvement. If the query is still slow after indexing, look at query structure — maybe a correlated subquery can be rewritten as a JOIN.</p></div>
-</div>
+    { type: 'h2', text: 'Interview Questions' },
+    { type: 'qa', pairs: [
+      {
+        q: 'Q: A query is slow. Walk me through your debugging process.',
+        a: '<p>Step 1: run EXPLAIN. Look at type (ALL = bad), key (NULL = no index), rows (high = scanning many). Step 2: check if WHERE/JOIN columns are indexed. Step 3: check for functions on indexed columns. Step 4: check composite index column order matches your query\'s equality/range split. Step 5: check Extra for "Using filesort" or "Using temporary". Step 6: add or adjust indexes, re-run EXPLAIN to verify improvement. If the query is still slow after indexing, look at query structure — maybe a correlated subquery can be rewritten as a JOIN.</p>',
+      },
+    ]},
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>B-tree: sorted, O(log n) lookup. Without index = O(n) full scan</li>
-    <li>Composite index leftmost prefix: (a,b,c) helps (a), (a,b), (a,b,c) — not (b) alone</li>
-    <li>Covering index: all needed columns in index → never reads table row. "Using index" in EXPLAIN.</li>
-    <li>NEVER wrap indexed columns in functions — use the raw column in WHERE</li>
-    <li>EXPLAIN type=ALL is your enemy. key=NULL means no index used.</li>
-    <li>Always index FK columns in MySQL — not automatic like PostgreSQL</li>
-    <li>Equality columns first, range columns last in composite indexes</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'B-tree: sorted, O(log n) lookup. Without index = O(n) full scan',
+      'Composite index leftmost prefix: (a,b,c) helps (a), (a,b), (a,b,c) — not (b) alone',
+      'Covering index: all needed columns in index → never reads table row. "Using index" in EXPLAIN.',
+      'NEVER wrap indexed columns in functions — use the raw column in WHERE',
+      'EXPLAIN type=ALL is your enemy. key=NULL means no index used.',
+      'Always index FK columns in MySQL — not automatic like PostgreSQL',
+      'Equality columns first, range columns last in composite indexes',
+    ]},
+  ],
 };
 
 // ── DOCKER ────────────────────────────────────────────────────────────

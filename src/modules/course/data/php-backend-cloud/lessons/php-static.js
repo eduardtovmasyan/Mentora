@@ -10,25 +10,19 @@ export default {
     'Generate and manage a baseline file for legacy codebases',
     'Integrate static analysis in GitHub Actions CI pipeline',
   ],
-  body: `
-<h2>Setup</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">composer require --dev phpstan/phpstan
+  segments: [
+    { type: 'h2', text: 'Setup' },
+    { type: 'code', lang: 'bash', label: 'bash', code: `composer require --dev phpstan/phpstan
 composer require --dev phpstan/extension-installer  # optional extensions
 
 # Run analysis
 vendor/bin/phpstan analyse src/ --level=8
 
 # Generate baseline to suppress existing errors on legacy code
-vendor/bin/phpstan analyse src/ --level=8 --generate-baseline
-</code></pre>
-</div>
+vendor/bin/phpstan analyse src/ --level=8 --generate-baseline` },
 
-<h2>phpstan.neon Configuration</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">YAML — phpstan.neon</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-yaml">parameters:
+    { type: 'h2', text: 'phpstan.neon Configuration' },
+    { type: 'code', lang: 'yaml', label: 'YAML — phpstan.neon', code: `parameters:
     level: 8              # 0 (loose) to 9 (strictest)
     paths:
         - src
@@ -38,14 +32,10 @@ vendor/bin/phpstan analyse src/ --level=8 --generate-baseline
     checkMissingIterableValueType: true
     treatPhpDocTypesAsCertain: true
     ignoreErrors:
-        - '#Call to an undefined method PDO#'  # known false positive
-</code></pre>
-</div>
+        - '#Call to an undefined method PDO#'  # known false positive` },
 
-<h2>PHPDoc Annotations</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">/**
+    { type: 'h2', text: 'PHPDoc Annotations' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `/**
  * @param array<string, int> $scores  key=name, value=score
  * @return list<User>                 indexed array of Users
  */
@@ -67,14 +57,10 @@ $orders = $this->orderRepo->findAll();
 
 // Assert to narrow a type within a block
 assert($user instanceof Admin);
-$user->adminOnlyMethod(); // PHPStan knows $user is Admin here
-</code></pre>
-</div>
+$user->adminOnlyMethod(); // PHPStan knows $user is Admin here` },
 
-<h2>Generic Collections</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">/**
+    { type: 'h2', text: 'Generic Collections' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `/**
  * @template T
  */
 class TypedCollection {
@@ -99,32 +85,20 @@ class TypedCollection {
 /** @var TypedCollection<User> $users */
 $users = new TypedCollection();
 $users->add(new User()); // OK
-$users->add(new Order()); // PHPStan error: Order is not User
-</code></pre>
-</div>
+$users->add(new Order()); // PHPStan error: Order is not User` },
 
-<h2>CI Integration (GitHub Actions)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">YAML — .github/workflows/ci.yml</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-yaml">- name: Static Analysis
-  run: vendor/bin/phpstan analyse --no-progress --error-format=github
-</code></pre>
-</div>
+    { type: 'h2', text: 'CI Integration (GitHub Actions)' },
+    { type: 'code', lang: 'yaml', label: 'YAML — .github/workflows/ci.yml', code: `- name: Static Analysis
+  run: vendor/bin/phpstan analyse --no-progress --error-format=github` },
 
-<div class="callout callout-tip">
-  <div class="callout-title">Baseline Strategy</div>
-  <p>On legacy codebases, generate a baseline file to suppress existing errors: <code>--generate-baseline phpstan-baseline.neon</code>. Include it in <code>phpstan.neon</code> with <code>includes: [phpstan-baseline.neon]</code>. New code must pass clean; baseline errors are tracked until fixed. Baseline size should shrink over time.</p>
-</div>
+    { type: 'callout', style: 'tip', title: 'Baseline Strategy', html: 'On legacy codebases, generate a baseline file to suppress existing errors: <code>--generate-baseline phpstan-baseline.neon</code>. Include it in <code>phpstan.neon</code> with <code>includes: [phpstan-baseline.neon]</code>. New code must pass clean; baseline errors are tracked until fixed. Baseline size should shrink over time.' },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Start at level 5–6, work toward level 8 — don't jump straight to 9 on existing codebases</li>
-    <li>PHPDoc annotations extend the type system: <code>array&lt;K, V&gt;</code>, <code>list&lt;T&gt;</code>, <code>class-string&lt;T&gt;</code>, <code>@template</code></li>
-    <li>Baseline: suppress existing errors, ensure new code is clean — gradually shrink the baseline</li>
-    <li>Run in CI with <code>--error-format=github</code> for inline PR annotations</li>
-    <li>Psalm is an alternative — stricter by default, better generics support, slower analysis</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Start at level 5–6, work toward level 8 — don\'t jump straight to 9 on existing codebases',
+      'PHPDoc annotations extend the type system: <code>array&lt;K, V&gt;</code>, <code>list&lt;T&gt;</code>, <code>class-string&lt;T&gt;</code>, <code>@template</code>',
+      'Baseline: suppress existing errors, ensure new code is clean — gradually shrink the baseline',
+      'Run in CI with <code>--error-format=github</code> for inline PR annotations',
+      'Psalm is an alternative — stricter by default, better generics support, slower analysis',
+    ]},
+  ],
 };

@@ -10,21 +10,16 @@ export default {
     'Use Redis sorted sets to cache hot user feeds',
     'Handle the celebrity problem: hybrid approach for users with many followers',
   ],
-  body: `
-<h2>Two Approaches</h2>
-<table class="ctable">
-  <thead><tr><th>Approach</th><th>Write cost</th><th>Read cost</th><th>Freshness</th></tr></thead>
-  <tbody>
-    <tr><td>Fan-out on write (push)</td><td>High (N followers)</td><td>O(1)</td><td>Immediate for pre-computed feed</td></tr>
-    <tr><td>Fan-out on read (pull)</td><td>O(1)</td><td>High (merge N feeds)</td><td>Always fresh</td></tr>
-    <tr><td>Hybrid</td><td>Medium</td><td>Low</td><td>Near-immediate</td></tr>
-  </tbody>
-</table>
+  segments: [
+    { type: 'h2', text: 'Two Approaches' },
+    { type: 'table', headers: ['Approach', 'Write cost', 'Read cost', 'Freshness'], rows: [
+      ['Fan-out on write (push)', 'High (N followers)', 'O(1)', 'Immediate for pre-computed feed'],
+      ['Fan-out on read (pull)', 'O(1)', 'High (merge N feeds)', 'Always fresh'],
+      ['Hybrid', 'Medium', 'Low', 'Near-immediate'],
+    ]},
 
-<h2>Data Model</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">SQL</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-sql">CREATE TABLE users (
+    { type: 'h2', text: 'Data Model' },
+    { type: 'code', lang: 'sql', label: 'SQL', code: `CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     follower_count INT DEFAULT 0
@@ -51,14 +46,10 @@ CREATE TABLE user_feed (
     created_at TIMESTAMP NOT NULL, -- copied from post for sorting
     PRIMARY KEY (user_id, post_id)
 );
-CREATE INDEX idx_user_feed_time ON user_feed(user_id, created_at DESC);
-</code></pre>
-</div>
+CREATE INDEX idx_user_feed_time ON user_feed(user_id, created_at DESC);` },
 
-<h2>Fan-out on Write (background job)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Laravel job</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">class FanOutPostToFollowers implements ShouldQueue {
+    { type: 'h2', text: 'Fan-out on Write (background job)' },
+    { type: 'code', lang: 'php', label: 'PHP — Laravel job', code: `class FanOutPostToFollowers implements ShouldQueue {
     public function __construct(private Post $post) {}
 
     public function handle(): void {
@@ -92,14 +83,10 @@ CREATE INDEX idx_user_feed_time ON user_feed(user_id, created_at DESC);
         // Also cache in Redis sorted set (score = timestamp)
         $this->cacheInRedis($post);
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Reading Feed with Cursor Pagination</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">function getFeed(int $userId, ?string $cursor = null, int $limit = 20): array {
+    { type: 'h2', text: 'Reading Feed with Cursor Pagination' },
+    { type: 'code', lang: 'php', label: 'PHP', code: `function getFeed(int $userId, ?string $cursor = null, int $limit = 20): array {
     // Check Redis cache first
     $cacheKey = "feed:{$userId}";
     if (!$cursor && Cache::has($cacheKey)) {
@@ -130,24 +117,16 @@ CREATE INDEX idx_user_feed_time ON user_feed(user_id, created_at DESC);
 
     if (!$cursor) Cache::put($cacheKey, $result, 60);
     return $result;
-}
-</code></pre>
-</div>
+}` },
 
-<div class="callout callout-tip">
-  <div class="callout-title">Hybrid Approach for Celebrities</div>
-  <p>Twitter/Instagram use a hybrid: normal users get fan-out-on-write (feed pre-computed, fast reads). Celebrities (>10k followers) skip fan-out — their posts are fetched at read time and merged into the pre-computed feed. This caps the write amplification while keeping reads fast.</p>
-</div>
+    { type: 'callout', style: 'tip', title: 'Hybrid Approach for Celebrities', html: 'Twitter/Instagram use a hybrid: normal users get fan-out-on-write (feed pre-computed, fast reads). Celebrities (>10k followers) skip fan-out — their posts are fetched at read time and merged into the pre-computed feed. This caps the write amplification while keeping reads fast.' },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Fan-out-on-write: push posts to followers' feeds — fast reads, expensive writes for popular users</li>
-    <li>Fan-out-on-read: compute feed at read time — simple writes, slow reads with many followees</li>
-    <li>Hybrid: fan-out regular users, pull celebrity posts at read time — cap write amplification</li>
-    <li>Redis sorted set (ZSET): score = timestamp, member = post_id — O(log n) add, O(log n + k) range query</li>
-    <li>Cursor pagination over offset: no page drift when new posts are added, consistent performance</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Fan-out-on-write: push posts to followers\' feeds — fast reads, expensive writes for popular users',
+      'Fan-out-on-read: compute feed at read time — simple writes, slow reads with many followees',
+      'Hybrid: fan-out regular users, pull celebrity posts at read time — cap write amplification',
+      'Redis sorted set (ZSET): score = timestamp, member = post_id — O(log n) add, O(log n + k) range query',
+      'Cursor pagination over offset: no page drift when new posts are added, consistent performance',
+    ]},
+  ],
 };

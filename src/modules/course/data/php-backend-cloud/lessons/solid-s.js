@@ -10,15 +10,13 @@ export default {
     'Know when NOT to split (avoid over-engineering)',
     'Describe SRP using stakeholders, not just "classes"',
   ],
-  body: `
-<h2>The Principle</h2>
-<p>Robert Martin's definition: <em>"A class should have only one reason to change."</em> A "reason to change" maps to a stakeholder. If the marketing team, DBA, and security team can all force you to edit the same class — it has three reasons to change. Split it.</p>
-<p>Quick heuristic: if describing what a class does requires the word <strong>"and"</strong>, it probably violates SRP.</p>
+  segments: [
+    { type: 'h2', text: 'The Principle' },
+    { type: 'p', html: 'Robert Martin\'s definition: <em>"A class should have only one reason to change."</em> A "reason to change" maps to a stakeholder. If the marketing team, DBA, and security team can all force you to edit the same class — it has three reasons to change. Split it.' },
+    { type: 'p', html: 'Quick heuristic: if describing what a class does requires the word <strong>"and"</strong>, it probably violates SRP.' },
 
-<h2>Violation: The God Class</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — SRP Violation</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Violation: The God Class' },
+    { type: 'code', lang: 'php', label: 'PHP — SRP Violation', code: `&lt;?php
 // ✗ BAD: 5 different teams can force you to edit this one file
 class UserManager
 {
@@ -41,14 +39,10 @@ class UserManager
         file_put_contents('/var/log/app.log', "User {$id} created\n", FILE_APPEND);
         return $id;
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Applied SRP</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — SRP Applied</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Applied SRP' },
+    { type: 'code', lang: 'php', label: 'PHP — SRP Applied', code: `&lt;?php
 final class UserValidator
 {
     public function validate(string $email, string $password): void
@@ -105,26 +99,16 @@ final class UserRegistrationService
 }
 // Now: switch from mail() to Mailgun? Only WelcomeMailer changes.
 // Switch from MySQL to Postgres? Only UserRepository changes.
-// Change validation rules? Only UserValidator changes.
-</code></pre>
-</div>
+// Change validation rules? Only UserValidator changes.` },
 
-<div class="callout callout-warn">
-  <div class="callout-title">Don't Over-Split</div>
-  <p>SRP doesn't mean "one method per class". A User model with name + email + phone is fine — they all change for the same reason (user data changes). Only split when two <em>different stakeholders</em> can force changes to the same class.</p>
-</div>
+    { type: 'callout', style: 'warn', title: 'Don\'t Over-Split', html: 'SRP doesn\'t mean "one method per class". A User model with name + email + phone is fine — they all change for the same reason (user data changes). Only split when two <em>different stakeholders</em> can force changes to the same class.' },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>SRP: one class = one reason to change = serves one stakeholder</li>
-    <li>Red flag: class name has "Manager", "Handler", "Helper" — or needs "and" in description</li>
-    <li>Split into: Validator, Repository, Service, Mailer, Hasher, Formatter</li>
-    <li>Orchestration services are fine — their one job is to coordinate other classes</li>
-    <li>SRP is the prerequisite for testability — small focused classes are trivial to mock</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'SRP: one class = one reason to change = serves one stakeholder',
+      'Red flag: class name has "Manager", "Handler", "Helper" — or needs "and" in description',
+      'Split into: Validator, Repository, Service, Mailer, Hasher, Formatter',
+      'Orchestration services are fine — their one job is to coordinate other classes',
+      'SRP is the prerequisite for testability — small focused classes are trivial to mock',
+    ]},
+  ],
 };
-
-// ── SOLID-D ───────────────────────────────────────────────────────────

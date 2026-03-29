@@ -10,25 +10,21 @@ export default {
     'Describe macro commands and how they compose atomic commands into a transaction-like sequence',
     'Know when a command bus adds value versus when it is unnecessary indirection',
   ],
-  body: `
-<h2>The Core Concept</h2>
-<p>A command is a plain object that represents an intention — "transfer $200 from account A to B", "publish article 42", "send password-reset email to user 7". It carries everything needed to perform the action: the parameters, references to dependencies (injected via the bus), and optionally the information needed to reverse the action. The <em>invoker</em> (the bus, a controller, a scheduler) does not know what the command does; it only knows how to dispatch it. The <em>receiver</em> (the handler) does not know who triggered it.</p>
-
-<div class="callout callout-info">
-  <div class="callout-title">Four Participants</div>
-  <p><strong>Command</strong> — the intent object. <strong>Invoker</strong> — triggers execution (bus, scheduler). <strong>Receiver</strong> — the object that actually performs the work (a service, a model). <strong>Client</strong> — creates and configures the command before handing it to the invoker.</p>
-</div>
-
-<h2>Command and Handler Interfaces</h2>
-<p>Define the contracts first. A command is a pure data-transfer object; a handler contains the logic. Separating them allows multiple handlers (logging, auditing) to wrap one core handler via middleware without modifying it.</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+  segments: [
+    { type: 'h2', key: 'h_core_concept' },
+    { type: 'p', key: 'p_core_concept' },
+    { type: 'callout', style: 'info', key: 'callout_four_participants' },
+    { type: 'h2', key: 'h_interfaces' },
+    { type: 'p', key: 'p_interfaces' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'Command & Handler Interfaces',
+      code: `<?php
 
 declare(strict_types=1);
 
-namespace App\Commands\Contracts;
+namespace App\\Commands\\Contracts;
 
 interface CommandInterface {}
 
@@ -40,19 +36,19 @@ interface UndoableCommandInterface extends CommandInterface
 interface CommandHandlerInterface
 {
     public function handle(CommandInterface $command): mixed;
-}
-</code></pre>
-</div>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+}`,
+    },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'TransferFundsCommand (data object)',
+      code: `<?php
 
 declare(strict_types=1);
 
-namespace App\Commands;
+namespace App\\Commands;
 
-use App\Commands\Contracts\CommandInterface;
+use App\\Commands\\Contracts\\CommandInterface;
 
 // Command = data only, no logic
 final class TransferFundsCommand implements CommandInterface
@@ -63,22 +59,22 @@ final class TransferFundsCommand implements CommandInterface
         public readonly float  $amount,
         public readonly string $currency = 'USD',
     ) {}
-}
-</code></pre>
-</div>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+}`,
+    },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'TransferFundsHandler',
+      code: `<?php
 
 declare(strict_types=1);
 
-namespace App\Commands\Handlers;
+namespace App\\Commands\\Handlers;
 
-use App\Commands\TransferFundsCommand;
-use App\Repositories\Contracts\AccountRepositoryInterface;
-use App\Services\AuditService;
-use Illuminate\Support\Facades\DB;
+use App\\Commands\\TransferFundsCommand;
+use App\\Repositories\\Contracts\\AccountRepositoryInterface;
+use App\\Services\\AuditService;
+use Illuminate\\Support\\Facades\\DB;
 
 final class TransferFundsHandler
 {
@@ -102,28 +98,27 @@ final class TransferFundsHandler
             $this->audit->record($command);
         });
     }
-}
-</code></pre>
-</div>
-
-<h2>A Simple Command Bus</h2>
-<p>The bus is the invoker. It maps command class names to handler class names, resolves handlers from the container, and dispatches the command. Real-world buses (Tactician, Laravel Bus) add middleware pipelines for logging, validation, and transaction management.</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+}`,
+    },
+    { type: 'h2', key: 'h_command_bus' },
+    { type: 'p', key: 'p_command_bus' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'Simple Command Bus',
+      code: `<?php
 
 declare(strict_types=1);
 
-namespace App\Bus;
+namespace App\\Bus;
 
-use App\Commands\Contracts\CommandInterface;
-use Illuminate\Contracts\Container\Container;
+use App\\Commands\\Contracts\\CommandInterface;
+use Illuminate\\Contracts\\Container\\Container;
 use RuntimeException;
 
 final class CommandBus
 {
-    /** @var array&lt;class-string, class-string&gt; */
+    /** @var array<class-string, class-string> */
     private array $map = [];
 
     public function __construct(private readonly Container $container) {}
@@ -142,28 +137,27 @@ final class CommandBus
         $handler = $this->container->make($handlerClass);
         return $handler->handle($command);
     }
-}
-</code></pre>
-</div>
-
-<h2>Laravel Jobs as Commands</h2>
-<p>Laravel's <code>dispatch()</code> helper and <code>ShouldQueue</code> interface are a first-class implementation of the Command pattern. A job class is the command object; <code>handle()</code> is the handler. Laravel adds serialisation, queue routing, retry policies, and timeouts on top of the raw pattern. Understanding this lets you reason about when to use a plain synchronous command bus versus queued jobs.</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+}`,
+    },
+    { type: 'h2', key: 'h_laravel_jobs' },
+    { type: 'p', key: 'p_laravel_jobs' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'Laravel Job as Command',
+      code: `<?php
 
 declare(strict_types=1);
 
-namespace App\Jobs;
+namespace App\\Jobs;
 
-use App\Models\User;
-use App\Services\MailService;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use App\\Models\\User;
+use App\\Services\\MailService;
+use Illuminate\\Bus\\Queueable;
+use Illuminate\\Contracts\\Queue\\ShouldQueue;
+use Illuminate\\Foundation\\Bus\\Dispatchable;
+use Illuminate\\Queue\\InteractsWithQueue;
+use Illuminate\\Queue\\SerializesModels;
 
 final class SendPasswordResetEmail implements ShouldQueue
 {
@@ -182,22 +176,21 @@ final class SendPasswordResetEmail implements ShouldQueue
 }
 
 // Dispatching — same pattern as any command bus
-SendPasswordResetEmail::dispatch($user)->onQueue('notifications');
-</code></pre>
-</div>
-
-<h2>Undo / Redo with a Command History Stack</h2>
-<p>When commands implement an <code>undo()</code> method you can maintain a history stack and replay or reverse operations. This is common in rich-client apps, document editors, and multi-step wizards. Each executed command is pushed onto the history; undo pops and reverses; redo re-executes from a forward stack.</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+SendPasswordResetEmail::dispatch($user)->onQueue('notifications');`,
+    },
+    { type: 'h2', key: 'h_undo_redo' },
+    { type: 'p', key: 'p_undo_redo' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'MoveTextCommand + CommandHistory',
+      code: `<?php
 
 declare(strict_types=1);
 
-namespace App\Commands;
+namespace App\\Commands;
 
-use App\Commands\Contracts\UndoableCommandInterface;
+use App\\Commands\\Contracts\\UndoableCommandInterface;
 
 final class MoveTextCommand implements UndoableCommandInterface
 {
@@ -251,22 +244,21 @@ final class CommandHistory
             $this->history[] = $command;
         }
     }
-}
-</code></pre>
-</div>
-
-<h2>Macro Commands</h2>
-<p>A macro command composes multiple atomic commands into a single executable unit. It implements the same interface as any other command, so the bus or history manager has no idea it is composite. This is the Composite pattern applied to commands, and it enables transaction-like sequences that can also be undone as a unit.</p>
-
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+}`,
+    },
+    { type: 'h2', key: 'h_macro_commands' },
+    { type: 'p', key: 'p_macro_commands' },
+    {
+      type: 'code',
+      lang: 'php',
+      label: 'MacroCommand (Composite)',
+      code: `<?php
 
 declare(strict_types=1);
 
-namespace App\Commands;
+namespace App\\Commands;
 
-use App\Commands\Contracts\UndoableCommandInterface;
+use App\\Commands\\Contracts\\UndoableCommandInterface;
 
 final class MacroCommand implements UndoableCommandInterface
 {
@@ -293,53 +285,64 @@ final class MacroCommand implements UndoableCommandInterface
 $history->execute(new MacroCommand([
     new CreateUserCommand($data),
     new SendWelcomeEmailCommand($data['email']),
-]));
-</code></pre>
-</div>
-
-<h2>When Not to Use a Command Bus</h2>
-<p>A command bus is excellent when you need cross-cutting concerns (logging, validation, transactions) applied uniformly, or when separating commands from handlers aids team scaling. It is overkill for small applications, simple CRUD controllers, or when the "handler" would contain only a single line calling a service method. Always weigh the indirection cost against the flexibility gained.</p>
-
-<div class="callout callout-warning">
-  <div class="callout-title">CQRS Boundary</div>
-  <p>The Command pattern is the foundation of CQRS (Command Query Responsibility Segregation). Commands mutate state and return void (or a command ID). Queries read state and return data. Mixing them — a command that also returns the newly created entity — is pragmatic but violates strict CQRS. Know the trade-off before deciding.</p>
-</div>
-
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: What is the difference between a command and an event in event-driven systems?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>A command is an <em>instruction</em> directed at a specific handler: "do this thing now". It has one intended recipient and may be rejected. An event is a <em>notification</em> that something has already happened: "this thing occurred". It has zero or many listeners and cannot be rejected — the fact is immutable. Commands are imperative ("transfer funds"); events are past-tense ("FundsTransferred"). In Laravel: jobs and commands are commands; Laravel events / listeners are the event model.</p></div>
-</div>
-
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: How do you handle validation — in the command object or in the handler?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>Format/type validation (is the amount a positive number?) belongs in the command constructor or a dedicated validation middleware in the bus pipeline, so invalid commands never reach the handler. Business-rule validation (does the account have sufficient funds?) belongs in the handler or a domain service, because it requires database state. Keeping these layers separate prevents coupling infrastructure (validation rules from HTTP request) to domain logic.</p></div>
-</div>
-
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: Can commands return values, or must they be void?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>Strict CQRS says commands should return void — they mutate state but don't return data. In practice, returning the ID of a newly created resource (not the full entity) is a widely accepted pragmatic exception. Returning a full domain object from a command blurs the command/query boundary and makes handlers harder to use in asynchronous contexts. Laravel's synchronous bus allows return values; queued jobs run asynchronously and cannot return values to the caller.</p></div>
-</div>
-
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>A command is a plain data object representing an intent; a handler contains the execution logic — keep them separate.</li>
-    <li>The command bus is the invoker: it maps command classes to handler classes and applies middleware (logging, transactions, validation).</li>
-    <li>Laravel jobs are a first-class implementation of the Command pattern enriched with serialisation, queuing, and retry policies.</li>
-    <li>Commands with <code>undo()</code> methods enable a history stack for multi-step undo/redo without exposing internals.</li>
-    <li>Macro commands compose atomic commands using the Composite pattern, allowing rollback of an entire sequence in reverse order.</li>
-    <li>Commands should be void in strict CQRS; returning a resource ID is a pragmatic compromise widely used in PHP frameworks.</li>
-    <li>A command bus adds value for cross-cutting concerns but is overkill in simple CRUD scenarios — apply deliberately.</li>
-  </ul>
-</div>
-`,
+]));`,
+    },
+    { type: 'h2', key: 'h_when_not_to_use' },
+    { type: 'p', key: 'p_when_not_to_use' },
+    { type: 'callout', style: 'warn', key: 'callout_cqrs_boundary' },
+    { type: 'qa', key: 'qa' },
+    { type: 'keypoints', key: 'keypoints' },
+  ],
+  bodyTexts: {
+    h_core_concept: 'The Core Concept',
+    p_core_concept: 'A command is a plain object that represents an intention — "transfer $200 from account A to B", "publish article 42", "send password-reset email to user 7". It carries everything needed to perform the action: the parameters, references to dependencies (injected via the bus), and optionally the information needed to reverse the action. The <em>invoker</em> (the bus, a controller, a scheduler) does not know what the command does; it only knows how to dispatch it. The <em>receiver</em> (the handler) does not know who triggered it.',
+    callout_four_participants: {
+      title: 'Four Participants',
+      html: '<strong>Command</strong> — the intent object. <strong>Invoker</strong> — triggers execution (bus, scheduler). <strong>Receiver</strong> — the object that actually performs the work (a service, a model). <strong>Client</strong> — creates and configures the command before handing it to the invoker.',
+    },
+    h_interfaces: 'Command and Handler Interfaces',
+    p_interfaces: 'Define the contracts first. A command is a pure data-transfer object; a handler contains the logic. Separating them allows multiple handlers (logging, auditing) to wrap one core handler via middleware without modifying it.',
+    h_command_bus: 'A Simple Command Bus',
+    p_command_bus: 'The bus is the invoker. It maps command class names to handler class names, resolves handlers from the container, and dispatches the command. Real-world buses (Tactician, Laravel Bus) add middleware pipelines for logging, validation, and transaction management.',
+    h_laravel_jobs: 'Laravel Jobs as Commands',
+    p_laravel_jobs: 'Laravel\'s <code>dispatch()</code> helper and <code>ShouldQueue</code> interface are a first-class implementation of the Command pattern. A job class is the command object; <code>handle()</code> is the handler. Laravel adds serialisation, queue routing, retry policies, and timeouts on top of the raw pattern. Understanding this lets you reason about when to use a plain synchronous command bus versus queued jobs.',
+    h_undo_redo: 'Undo / Redo with a Command History Stack',
+    p_undo_redo: 'When commands implement an <code>undo()</code> method you can maintain a history stack and replay or reverse operations. This is common in rich-client apps, document editors, and multi-step wizards. Each executed command is pushed onto the history; undo pops and reverses; redo re-executes from a forward stack.',
+    h_macro_commands: 'Macro Commands',
+    p_macro_commands: 'A macro command composes multiple atomic commands into a single executable unit. It implements the same interface as any other command, so the bus or history manager has no idea it is composite. This is the Composite pattern applied to commands, and it enables transaction-like sequences that can also be undone as a unit.',
+    h_when_not_to_use: 'When Not to Use a Command Bus',
+    p_when_not_to_use: 'A command bus is excellent when you need cross-cutting concerns (logging, validation, transactions) applied uniformly, or when separating commands from handlers aids team scaling. It is overkill for small applications, simple CRUD controllers, or when the "handler" would contain only a single line calling a service method. Always weigh the indirection cost against the flexibility gained.',
+    callout_cqrs_boundary: {
+      title: 'CQRS Boundary',
+      html: 'The Command pattern is the foundation of CQRS (Command Query Responsibility Segregation). Commands mutate state and return void (or a command ID). Queries read state and return data. Mixing them — a command that also returns the newly created entity — is pragmatic but violates strict CQRS. Know the trade-off before deciding.',
+    },
+    qa: {
+      pairs: [
+        {
+          q: 'What is the difference between a command and an event in event-driven systems?',
+          a: 'A command is an <em>instruction</em> directed at a specific handler: "do this thing now". It has one intended recipient and may be rejected. An event is a <em>notification</em> that something has already happened: "this thing occurred". It has zero or many listeners and cannot be rejected — the fact is immutable. Commands are imperative ("transfer funds"); events are past-tense ("FundsTransferred"). In Laravel: jobs and commands are commands; Laravel events / listeners are the event model.',
+        },
+        {
+          q: 'How do you handle validation — in the command object or in the handler?',
+          a: 'Format/type validation (is the amount a positive number?) belongs in the command constructor or a dedicated validation middleware in the bus pipeline, so invalid commands never reach the handler. Business-rule validation (does the account have sufficient funds?) belongs in the handler or a domain service, because it requires database state. Keeping these layers separate prevents coupling infrastructure (validation rules from HTTP request) to domain logic.',
+        },
+        {
+          q: 'Can commands return values, or must they be void?',
+          a: 'Strict CQRS says commands should return void — they mutate state but don\'t return data. In practice, returning the ID of a newly created resource (not the full entity) is a widely accepted pragmatic exception. Returning a full domain object from a command blurs the command/query boundary and makes handlers harder to use in asynchronous contexts. Laravel\'s synchronous bus allows return values; queued jobs run asynchronously and cannot return values to the caller.',
+        },
+      ],
+    },
+    keypoints: {
+      title: 'Key Points to Remember',
+      items: [
+        'A command is a plain data object representing an intent; a handler contains the execution logic — keep them separate.',
+        'The command bus is the invoker: it maps command classes to handler classes and applies middleware (logging, transactions, validation).',
+        'Laravel jobs are a first-class implementation of the Command pattern enriched with serialisation, queuing, and retry policies.',
+        'Commands with <code>undo()</code> methods enable a history stack for multi-step undo/redo without exposing internals.',
+        'Macro commands compose atomic commands using the Composite pattern, allowing rollback of an entire sequence in reverse order.',
+        'Commands should be void in strict CQRS; returning a resource ID is a pragmatic compromise widely used in PHP frameworks.',
+        'A command bus adds value for cross-cutting concerns but is overkill in simple CRUD scenarios — apply deliberately.',
+      ],
+    },
+  },
 };

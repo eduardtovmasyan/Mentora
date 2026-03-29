@@ -12,21 +12,16 @@ export default {
     'Explain the terraform plan / apply / destroy workflow',
     'Use data sources to reference existing AWS resources',
   ],
-  body: `
-<h2>Core Concepts</h2>
-<ul>
-  <li><strong>Provider:</strong> Plugin that talks to an API (AWS, GCP, Azure). Configured with credentials.</li>
-  <li><strong>Resource:</strong> Infrastructure object to create (aws_vpc, aws_ecs_service, aws_rds_cluster).</li>
-  <li><strong>State:</strong> Terraform tracks what it has created in a state file. Never edit manually.</li>
-  <li><strong>Plan:</strong> Preview changes before applying. Shows what will be created/updated/destroyed.</li>
-  <li><strong>Apply:</strong> Execute the plan and create/update/destroy real infrastructure.</li>
-  <li><strong>Module:</strong> Reusable group of resources — like a function in programming.</li>
-</ul>
 
-<h2>Basic Project Structure</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">bash — Terraform Project Layout</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">infrastructure/
+  // ── Structure ────────────────────────────────────────────────────────────
+  // Segments define layout only. Text keys are resolved from bodyTexts below.
+  // Code segments are always English — never translated.
+  segments: [
+    { type: 'h2', key: 'h_core_concepts' },
+    { type: 'ul', key: 'ul_core_concepts' },
+
+    { type: 'h2', key: 'h_project_structure' },
+    { type: 'code', lang: 'bash', label: 'Terraform Project Layout', code: `infrastructure/
 ├── main.tf          # main resources
 ├── variables.tf     # input variables (like function params)
 ├── outputs.tf       # output values (like return values)
@@ -34,14 +29,10 @@ export default {
 ├── terraform.tfvars # variable values (gitignored for secrets)
 └── modules/
     ├── vpc/         # reusable VPC module
-    └── ecs/         # reusable ECS module
-</code></pre>
-</div>
+    └── ecs/         # reusable ECS module` },
 
-<h2>Complete Example: VPC + ECS + RDS</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">HCL — providers.tf</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">terraform {
+    { type: 'h2', key: 'h_complete_example' },
+    { type: 'code', lang: 'hcl', label: 'HCL — providers.tf', code: `terraform {
   required_version = ">= 1.7"
   required_providers {
     aws = { source = "hashicorp/aws", version = "~> 5.0" }
@@ -59,13 +50,9 @@ export default {
 
 provider "aws" {
   region = var.aws_region
-}
-</code></pre>
-</div>
+}` },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">HCL — main.tf (VPC + Subnets)</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">variable "aws_region"  { default = "eu-west-1" }
+    { type: 'code', lang: 'hcl', label: 'HCL — main.tf (VPC + Subnets)', code: `variable "aws_region"  { default = "eu-west-1" }
 variable "app_name"    { default = "my-app" }
 variable "environment" { default = "production" }
 
@@ -126,14 +113,10 @@ resource "aws_db_instance" "main" {
 
 # Outputs — reference in other configs or scripts
 output "vpc_id"       { value = aws_vpc.main.id }
-output "db_endpoint"  { value = aws_db_instance.main.endpoint }
-</code></pre>
-</div>
+output "db_endpoint"  { value = aws_db_instance.main.endpoint }` },
 
-<h2>Terraform Workflow</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">bash — Terraform Commands</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-bash">terraform init          # download providers + configure backend
+    { type: 'h2', key: 'h_workflow' },
+    { type: 'code', lang: 'bash', label: 'bash — Terraform Commands', code: `terraform init          # download providers + configure backend
 terraform validate      # check HCL syntax
 terraform fmt           # format files consistently
 terraform plan          # preview changes (ALWAYS do this first)
@@ -149,21 +132,41 @@ terraform workspace list
 terraform apply -target=aws_ecs_service.main
 
 # Import existing resource into state:
-terraform import aws_s3_bucket.media my-existing-bucket-name
-</code></pre>
-</div>
+terraform import aws_s3_bucket.media my-existing-bucket-name` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Always use remote state (S3 backend) + DynamoDB locking in teams — never local state</li>
-    <li>Always run terraform plan before apply — review what will change</li>
-    <li>Never store secrets in .tf files — use variables + terraform.tfvars (gitignored) or AWS Secrets Manager</li>
-    <li>Use modules for reusable infrastructure — VPC, ECS, RDS modules</li>
-    <li>Workspaces: dev/staging/prod environments with separate state files</li>
-    <li>data sources: reference existing AWS resources without managing them</li>
-    <li>locals: computed values used multiple times — like variables but not inputs</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', key: 'keypoints' },
+  ],
+
+  // ── English source text ──────────────────────────────────────────────────
+  // This is the English "locale". Russian/Armenian overrides live in ru.ts / hy.ts.
+  bodyTexts: {
+    h_core_concepts: 'Core Concepts',
+    ul_core_concepts: [
+      '<strong>Provider:</strong> Plugin that talks to an API (AWS, GCP, Azure). Configured with credentials.',
+      '<strong>Resource:</strong> Infrastructure object to create (<code>aws_vpc</code>, <code>aws_ecs_service</code>, <code>aws_rds_cluster</code>).',
+      '<strong>State:</strong> Terraform tracks what it has created in a state file. Never edit manually.',
+      '<strong>Plan:</strong> Preview changes before applying. Shows what will be created/updated/destroyed.',
+      '<strong>Apply:</strong> Execute the plan and create/update/destroy real infrastructure.',
+      '<strong>Module:</strong> Reusable group of resources — like a function in programming.',
+    ],
+
+    h_project_structure: 'Basic Project Structure',
+
+    h_complete_example: 'Complete Example: VPC + ECS + RDS',
+
+    h_workflow: 'Terraform Workflow',
+
+    keypoints: {
+      title: 'Key Points to Remember',
+      items: [
+        'Always use remote state (S3 backend) + DynamoDB locking in teams — never local state',
+        'Always run terraform plan before apply — review what will change',
+        'Never store secrets in .tf files — use variables + terraform.tfvars (gitignored) or AWS Secrets Manager',
+        'Use modules for reusable infrastructure — VPC, ECS, RDS modules',
+        'Workspaces: dev/staging/prod environments with separate state files',
+        'data sources: reference existing AWS resources without managing them',
+        'locals: computed values used multiple times — like variables but not inputs',
+      ],
+    },
+  },
 };

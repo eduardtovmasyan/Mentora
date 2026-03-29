@@ -11,12 +11,10 @@ export default {
     'Know when Facades are resolved and their drawbacks',
     'Configure and use queued jobs effectively',
   ],
-  body: `
-<h2>Service Container</h2>
-<p>The service container is Laravel's IoC (Inversion of Control) container — a powerful dependency injection tool that resolves class dependencies automatically.</p>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Service Container</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+  segments: [
+    { type: 'h2', text: 'Service Container' },
+    { type: 'p', html: 'The service container is Laravel\'s IoC (Inversion of Control) container — a powerful dependency injection tool that resolves class dependencies automatically.' },
+    { type: 'code', lang: 'php', label: 'PHP — Service Container', code: `&lt;?php
 // In AppServiceProvider::register()
 
 // bind(): new instance every time it is resolved
@@ -50,15 +48,11 @@ class OrderService
 
 // Resolve manually:
 $service = app(OrderService::class);
-$service = resolve(OrderService::class);
-</code></pre>
-</div>
+$service = resolve(OrderService::class);` },
 
-<h2>Middleware Pipeline</h2>
-<p>Laravel's middleware works like an onion — each layer wraps the next. The request passes through all middleware before reaching the controller, then the response passes back through them in reverse order.</p>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Custom Middleware</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Middleware Pipeline' },
+    { type: 'p', html: 'Laravel\'s middleware works like an onion — each layer wraps the next. The request passes through all middleware before reaching the controller, then the response passes back through them in reverse order.' },
+    { type: 'code', lang: 'php', label: 'PHP — Custom Middleware', code: `&lt;?php
 class RateLimitMiddleware
 {
     public function handle(Request $request, Closure $next, int $maxAttempts = 60): Response
@@ -99,14 +93,10 @@ class LogRequestMiddleware
             'time'   => microtime(true) - LARAVEL_START,
         ]);
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Eloquent & The N+1 Problem</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Eloquent Best Practices</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Eloquent & The N+1 Problem' },
+    { type: 'code', lang: 'php', label: 'PHP — Eloquent Best Practices', code: `&lt;?php
 // N+1 Problem: 1 query for users + N queries for each user's orders
 $users = User::all();
 foreach ($users as $user) {
@@ -143,20 +133,15 @@ protected $casts = [
     'is_active'  => 'boolean',
     'published_at' => 'datetime',
     'status'     => OrderStatus::class, // PHP 8.1 enum cast
-];
-</code></pre>
-</div>
+];` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>bind(): new instance each resolution. singleton(): shared instance. instance(): pre-built object.</li>
-    <li>Middleware is an onion — before logic runs inward, after logic runs outward</li>
-    <li>N+1 problem: always eager load relationships with with(). Use Laravel Debugbar to detect it.</li>
-    <li>Facades are proxies to the service container — not true static methods</li>
-    <li>Service providers: register() binds things. boot() runs after all registered.</li>
-    <li>Model casts: automatic type conversion on get/set — use for JSON, enums, dates</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'bind(): new instance each resolution. singleton(): shared instance. instance(): pre-built object.',
+      'Middleware is an onion — before logic runs inward, after logic runs outward',
+      'N+1 problem: always eager load relationships with with(). Use Laravel Debugbar to detect it.',
+      'Facades are proxies to the service container — not true static methods',
+      'Service providers: register() binds things. boot() runs after all registered.',
+      'Model casts: automatic type conversion on get/set — use for JSON, enums, dates',
+    ]},
+  ],
 };

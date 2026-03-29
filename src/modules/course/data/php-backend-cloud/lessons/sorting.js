@@ -10,23 +10,14 @@ export default {
     'Apply counting sort for bounded integer keys — O(n + k)',
     'Use PHP usort with spaceship operator for custom comparators',
   ],
-  body: `
-<h2>Comparison Sort Overview</h2>
-<table class="ctable">
-  <thead><tr><th>Algorithm</th><th>Average</th><th>Worst</th><th>Space</th><th>Stable</th></tr></thead>
-  <tbody>
-    <tr><td>Bubble / Insertion</td><td class="on2">O(n²)</td><td class="on2">O(n²)</td><td class="o1">O(1)</td><td>Yes</td></tr>
-    <tr><td>Merge Sort</td><td class="olog">O(n log n)</td><td class="olog">O(n log n)</td><td class="on">O(n)</td><td>Yes</td></tr>
-    <tr><td>Quick Sort</td><td class="olog">O(n log n)</td><td class="on2">O(n²)</td><td class="olog">O(log n)</td><td>No</td></tr>
-    <tr><td>Heap Sort</td><td class="olog">O(n log n)</td><td class="olog">O(n log n)</td><td class="o1">O(1)</td><td>No</td></tr>
-    <tr><td>Counting Sort</td><td class="on">O(n + k)</td><td class="on">O(n + k)</td><td class="on">O(k)</td><td>Yes</td></tr>
-  </tbody>
-</table>
+  segments: [
+    { type: 'h2', key: 'h_overview' },
+    { type: 'table', key: 'tbl_overview' },
 
-<h2>Merge Sort</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">function mergeSort(array $arr): array {
+    { type: 'h2', key: 'h_merge' },
+    {
+      type: 'code', lang: 'php', label: 'PHP',
+      code: `function mergeSort(array $arr): array {
     $n = count($arr);
     if ($n <= 1) return $arr;
     $mid   = intdiv($n, 2);
@@ -41,14 +32,13 @@ function merge(array $l, array $r): array {
         $res[] = $l[$i] <= $r[$j] ? $l[$i++] : $r[$j++];
     }
     return array_merge($res, array_slice($l, $i), array_slice($r, $j));
-}
-</code></pre>
-</div>
+}`,
+    },
 
-<h2>Quick Sort (in-place, median-of-three)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">function quickSort(array &$a, int $lo = 0, ?int $hi = null): void {
+    { type: 'h2', key: 'h_quick' },
+    {
+      type: 'code', lang: 'php', label: 'PHP',
+      code: `function quickSort(array &$a, int $lo = 0, ?int $hi = null): void {
     $hi ??= count($a) - 1;
     if ($lo >= $hi) return;
     $p = partition($a, $lo, $hi);
@@ -70,14 +60,13 @@ function partition(array &$a, int $lo, int $hi): int {
     }
     [$a[$i + 1], $a[$hi]] = [$a[$hi], $a[$i + 1]];
     return $i + 1;
-}
-</code></pre>
-</div>
+}`,
+    },
 
-<h2>Counting Sort (O(n + k))</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">function countingSort(array $arr, int $maxVal): array {
+    { type: 'h2', key: 'h_counting' },
+    {
+      type: 'code', lang: 'php', label: 'PHP',
+      code: `function countingSort(array $arr, int $maxVal): array {
     $count = array_fill(0, $maxVal + 1, 0);
     foreach ($arr as $v) $count[$v]++;
     $result = [];
@@ -85,14 +74,13 @@ function partition(array &$a, int $lo, int $hi): int {
         for ($i = 0; $i < $freq; $i++) $result[] = $v;
     }
     return $result;
-}
-</code></pre>
-</div>
+}`,
+    },
 
-<h2>PHP Built-in Sorting</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// Custom comparator with spaceship operator
+    { type: 'h2', key: 'h_builtin' },
+    {
+      type: 'code', lang: 'php', label: 'PHP',
+      code: `// Custom comparator with spaceship operator
 usort($users, fn($a, $b) => $a['age'] <=> $b['age']);
 
 // Multi-key stable sort
@@ -104,27 +92,45 @@ array_multisort(
 
 // sort() modifies in-place, returns bool, reindexes keys
 // asort() preserves keys, arsort() reverses
-// ksort() / krsort() sort by key
-</code></pre>
-</div>
+// ksort() / krsort() sort by key`,
+    },
 
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: Why is merge sort preferred for linked lists?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>Quicksort requires random access for efficient partitioning. Linked lists only support sequential access, making pivot selection and partitioning O(n) per level. Merge sort naturally splits at the midpoint (found with slow/fast pointers) and merges in O(n) without extra structure.</p></div>
-</div>
-
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Merge sort: stable, O(n log n) guaranteed, O(n) extra space — best for linked lists and external sort</li>
-    <li>Quick sort: in-place, O(n log n) average, O(n²) worst — use random or median-of-3 pivot to mitigate</li>
-    <li>Heap sort: O(n log n) guaranteed, O(1) space — but poor cache performance, rarely used in practice</li>
-    <li>Counting/Radix: O(n + k) — beats Ω(n log n) comparison lower bound by exploiting integer structure</li>
-    <li>PHP sort() is not stable — use usort() with <code>&lt;=&gt;</code> for custom ordering</li>
-  </ul>
-</div>
-`,
+    { type: 'qa', key: 'qa' },
+    { type: 'keypoints', key: 'keypoints' },
+  ],
+  bodyTexts: {
+    h_overview: 'Comparison Sort Overview',
+    tbl_overview: {
+      headers: ['Algorithm', 'Average', 'Worst', 'Space', 'Stable'],
+      rows: [
+        ['Bubble / Insertion', { v: 'O(n²)', cls: 'on2' }, { v: 'O(n²)', cls: 'on2' }, { v: 'O(1)', cls: 'o1' }, 'Yes'],
+        ['Merge Sort',         { v: 'O(n log n)', cls: 'olog' }, { v: 'O(n log n)', cls: 'olog' }, { v: 'O(n)', cls: 'on' }, 'Yes'],
+        ['Quick Sort',         { v: 'O(n log n)', cls: 'olog' }, { v: 'O(n²)', cls: 'on2' }, { v: 'O(log n)', cls: 'olog' }, 'No'],
+        ['Heap Sort',          { v: 'O(n log n)', cls: 'olog' }, { v: 'O(n log n)', cls: 'olog' }, { v: 'O(1)', cls: 'o1' }, 'No'],
+        ['Counting Sort',      { v: 'O(n + k)', cls: 'on' }, { v: 'O(n + k)', cls: 'on' }, { v: 'O(k)', cls: 'on' }, 'Yes'],
+      ],
+    },
+    h_merge: 'Merge Sort',
+    h_quick: 'Quick Sort (in-place, median-of-three)',
+    h_counting: 'Counting Sort (O(n + k))',
+    h_builtin: 'PHP Built-in Sorting',
+    qa: {
+      pairs: [
+        {
+          q: 'Why is merge sort preferred for linked lists?',
+          a: 'Quicksort requires random access for efficient partitioning. Linked lists only support sequential access, making pivot selection and partitioning O(n) per level. Merge sort naturally splits at the midpoint (found with slow/fast pointers) and merges in O(n) without extra structure.',
+        },
+      ],
+    },
+    keypoints: {
+      title: 'Key Points to Remember',
+      items: [
+        'Merge sort: stable, O(n log n) guaranteed, O(n) extra space — best for linked lists and external sort',
+        'Quick sort: in-place, O(n log n) average, O(n²) worst — use random or median-of-3 pivot to mitigate',
+        'Heap sort: O(n log n) guaranteed, O(1) space — but poor cache performance, rarely used in practice',
+        'Counting/Radix: O(n + k) — beats Ω(n log n) comparison lower bound by exploiting integer structure',
+        'PHP sort() is not stable — use usort() with <code>&lt;=&gt;</code> for custom ordering',
+      ],
+    },
+  },
 };

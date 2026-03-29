@@ -26,7 +26,13 @@
       </div>
     </div>
 
-    <div ref="bodyRef" class="lesson-body" v-html="lesson.body" />
+    <LessonBody
+      v-if="lesson.segments?.length && lesson.bodyTexts"
+      :segments="lesson.segments"
+      :body-texts="lesson.bodyTexts"
+      :locale-body-texts="localeBodyTexts"
+    />
+    <div v-else-if="lesson.body" ref="bodyRef" class="lesson-body" v-html="lesson.body" />
 
     <div class="mark-done-wrap">
       <div class="mark-done-text">
@@ -80,11 +86,12 @@
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import hljs from 'highlight.js'
 import { CourseRoute } from '@/modules/course/enums/CourseRoute.ts'
 import { useCourseStore } from '@/modules/course/stores/course.store.ts'
 import { useProgressStore } from '@/modules/progress/stores/progress.store.ts'
 import { currentLocale } from '@/i18n/index.ts'
+import hljs from 'highlight.js'
+import LessonBody from '@/modules/course/components/LessonBody.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -98,6 +105,11 @@ const lessonId = computed<string>(() => route.params.lessonId as string)
 const lesson = computed(() => courseStore.getLesson(lessonId.value, currentLocale.value))
 const isDone = computed<boolean>(() => progressStore.isDone(lessonId.value))
 const neighbors = computed(() => courseStore.neighbors(lessonId.value))
+
+/** bodyTexts already merged (locale over English) by getLesson — pass to LessonBody for t() */
+const localeBodyTexts = computed(() =>
+  currentLocale.value !== 'en' ? lesson.value?.bodyTexts : undefined
+)
 
 const currentLessonTitle = computed<string>(() => {
   return lessonTitle(
@@ -113,7 +125,7 @@ function lessonTitle(id: string, fallback: string): string {
 
 hljs.configure({ ignoreUnescapedHTML: true })
 
-function highlight(): void {
+function highlightLegacy(): void {
   nextTick(() => {
     bodyRef.value?.querySelectorAll('pre code').forEach((el) => {
       hljs.highlightElement(el as HTMLElement)
@@ -129,6 +141,6 @@ function go(id: string): void {
   router.push({ name: CourseRoute.Lesson, params: { lessonId: id } })
 }
 
-onMounted(highlight)
-watch(lessonId, () => { scrollToTop(); highlight() })
+onMounted(highlightLegacy)
+watch(lessonId, () => { scrollToTop(); highlightLegacy() })
 </script>

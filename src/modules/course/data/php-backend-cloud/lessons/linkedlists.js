@@ -10,11 +10,9 @@ export default {
     'Find the middle node with fast/slow pointer',
     'Merge two sorted lists in O(m+n)',
   ],
-  body: `
-<h2>Node Implementation</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — ListNode</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+  segments: [
+    { type: 'h2', text: 'Node Implementation' },
+    { type: 'code', lang: 'php', label: 'PHP — ListNode', code: `&lt;?php
 class ListNode
 {
     public function __construct(
@@ -29,14 +27,10 @@ function arrayToList(array $vals): ?ListNode
     $curr  = $dummy;
     foreach ($vals as $v) { $curr->next = new ListNode($v); $curr = $curr->next; }
     return $dummy->next;
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Fast & Slow Pointers</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Fast/Slow Patterns</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Fast & Slow Pointers' },
+    { type: 'code', lang: 'php', label: 'PHP — Fast/Slow Patterns', code: `&lt;?php
 // Detect cycle - O(1) space
 function hasCycle(?ListNode $head): bool
 {
@@ -58,14 +52,10 @@ function middleNode(?ListNode $head): ?ListNode
         $fast = $fast->next->next;
     }
     return $slow;
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Reversal & Merge</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Reversal & Merge</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Reversal & Merge' },
+    { type: 'code', lang: 'php', label: 'PHP — Reversal & Merge', code: `&lt;?php
 // Reverse entire list - 1->2->3->4->5 becomes 5->4->3->2->1
 function reverseList(?ListNode $head): ?ListNode
 {
@@ -93,24 +83,16 @@ function mergeTwoLists(?ListNode $l1, ?ListNode $l2): ?ListNode
     $curr->next = $l1 ?? $l2;
     return $dummy->next;
 }
-// Time: O(m+n)  Space: O(1)
-</code></pre>
-</div>
+// Time: O(m+n)  Space: O(1)` },
 
-<div class="callout callout-tip">
-  <div class="callout-title">The Dummy Node Trick</div>
-  <p>Create a <code>$dummy = new ListNode(0)</code> at the start of any list-building problem. Work with <code>$dummy->next</code> as the real head. Return <code>$dummy->next</code> at the end. This eliminates the special case of updating the head node.</p>
-</div>
+    { type: 'callout', style: 'tip', title: 'The Dummy Node Trick', html: 'Create a <code>$dummy = new ListNode(0)</code> at the start of any list-building problem. Work with <code>$dummy->next</code> as the real head. Return <code>$dummy->next</code> at the end. This eliminates the special case of updating the head node.' },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>O(1) insert/delete given a pointer. O(n) access by index.</li>
-    <li>Fast/slow pointers: detect cycle O(1) space, find middle, kth from end</li>
-    <li>Reversal: three pointers (prev, curr, next) - draw on paper first</li>
-    <li>Dummy node: eliminates head edge cases in list construction problems</li>
-    <li>PHP SplDoublyLinkedList: O(1) push/pop from both ends</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'O(1) insert/delete given a pointer. O(n) access by index.',
+      'Fast/slow pointers: detect cycle O(1) space, find middle, kth from end',
+      'Reversal: three pointers (prev, curr, next) - draw on paper first',
+      'Dummy node: eliminates head edge cases in list construction problems',
+      'PHP SplDoublyLinkedList: O(1) push/pop from both ends',
+    ]},
+  ],
 };

@@ -10,14 +10,16 @@ export default {
     'Configure secure session and cookie settings',
     'Implement brute-force protection and account lockout',
   ],
-  body: `
-<h2>OWASP Top 10 — 2021 Edition</h2>
 
-<h3>A01: Broken Access Control (#1 — Most Critical)</h3>
-<p>Users access resources they should not. Viewing another user's data, accessing admin functions, modifying records they don't own.</p>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Access Control Fix</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+  // ── Structure ────────────────────────────────────────────────────────────
+  // Segments define layout only. Text keys are resolved from bodyTexts below.
+  // Code segments are always English — never translated.
+  segments: [
+    { type: 'h2', key: 'h_top10' },
+
+    { type: 'h2', key: 'h_a01' },
+    { type: 'p',  key: 'p_a01' },
+    { type: 'code', lang: 'php', label: 'PHP — Access Control Fix', code: `&lt;?php
 // VULNERABLE: user can see any order by changing ID in URL
 public function show(int $orderId): array
 {
@@ -37,14 +39,10 @@ public function show(int $orderId): array
 public function myOrders(): array
 {
     return $this->orderRepo->findByUserId($this->auth->id()); // impossible to leak
-}
-</code></pre>
-</div>
+}` },
 
-<h3>A02: Cryptographic Failures</h3>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Cryptography</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', key: 'h_a02' },
+    { type: 'code', lang: 'php', label: 'PHP — Cryptography', code: `&lt;?php
 // NEVER use MD5 or SHA1 for passwords
 $hash = md5($password);      // BROKEN — cracked in milliseconds
 $hash = sha1($password);     // BROKEN — not for passwords
@@ -57,14 +55,10 @@ $valid = password_verify($password, $hash);            // timing-safe
 if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
     header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
     exit();
-}
-</code></pre>
-</div>
+}` },
 
-<h3>A03: Injection (SQL, Command, LDAP)</h3>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — SQL Injection Prevention</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', key: 'h_a03' },
+    { type: 'code', lang: 'php', label: 'PHP — SQL Injection Prevention', code: `&lt;?php
 // VULNERABLE: user input directly in query
 $name  = $_GET['name']; // attacker sends: ' OR '1'='1
 $query = "SELECT * FROM users WHERE name = '$name'"; // returns ALL users!
@@ -79,14 +73,10 @@ $stmt->execute([':name' => $name, ':email' => $email]);
 
 // Command injection:
 $file = escapeshellarg($_GET['file']); // ALWAYS escape shell arguments
-exec("convert {$file} -resize 100x100 thumb.jpg");
-</code></pre>
-</div>
+exec("convert {$file} -resize 100x100 thumb.jpg");` },
 
-<h3>A07: Authentication Failures</h3>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Secure Auth</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', key: 'h_a07' },
+    { type: 'code', lang: 'php', label: 'PHP — Secure Auth', code: `&lt;?php
 class LoginController
 {
     public function login(string $email, string $password): void
@@ -116,24 +106,39 @@ class LoginController
 ini_set('session.cookie_httponly', 1);    // JS cannot access cookie
 ini_set('session.cookie_secure', 1);      // HTTPS only
 ini_set('session.cookie_samesite', 'Strict'); // CSRF protection
-ini_set('session.use_strict_mode', 1);    // prevent session fixation
-</code></pre>
-</div>
+ini_set('session.use_strict_mode', 1);    // prevent session fixation` },
 
-<div class="keypoints">
-  <div class="keypoints-title">OWASP Top 10 Quick Reference</div>
-  <ul>
-    <li><strong>A01 Broken Access Control:</strong> Always verify ownership. Scope queries to auth user.</li>
-    <li><strong>A02 Crypto Failures:</strong> Argon2id for passwords. HTTPS everywhere. Never MD5/SHA1.</li>
-    <li><strong>A03 Injection:</strong> Prepared statements always. escapeshellarg() for shell commands.</li>
-    <li><strong>A04 Insecure Design:</strong> Threat modeling. Defense in depth. Fail securely.</li>
-    <li><strong>A05 Security Misconfiguration:</strong> Disable PHP errors in production. Remove defaults. Patch.</li>
-    <li><strong>A06 Vulnerable Components:</strong> composer audit. Keep dependencies updated.</li>
-    <li><strong>A07 Auth Failures:</strong> Rate limit login. Regenerate session. Same error message.</li>
-    <li><strong>A08 Data Integrity Failures:</strong> Verify serialized data. Use signed tokens.</li>
-    <li><strong>A09 Security Logging:</strong> Log all auth events, access failures, validation failures.</li>
-    <li><strong>A10 SSRF:</strong> Validate/allowlist URLs in user input before server-side requests.</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', key: 'keypoints' },
+  ],
+
+  // ── English source text ──────────────────────────────────────────────────
+  // This is the English "locale". Russian/Armenian overrides live in ru.ts / hy.ts.
+  bodyTexts: {
+    h_top10: 'OWASP Top 10 — 2021 Edition',
+
+    h_a01:  'A01: Broken Access Control (#1 — Most Critical)',
+    p_a01:  'Users access resources they should not. Viewing another user\'s data, accessing admin functions, modifying records they don\'t own.',
+
+    h_a02:  'A02: Cryptographic Failures',
+
+    h_a03:  'A03: Injection (SQL, Command, LDAP)',
+
+    h_a07:  'A07: Authentication Failures',
+
+    keypoints: {
+      title: 'OWASP Top 10 Quick Reference',
+      items: [
+        '<strong>A01 Broken Access Control:</strong> Always verify ownership. Scope queries to auth user.',
+        '<strong>A02 Crypto Failures:</strong> Argon2id for passwords. HTTPS everywhere. Never MD5/SHA1.',
+        '<strong>A03 Injection:</strong> Prepared statements always. escapeshellarg() for shell commands.',
+        '<strong>A04 Insecure Design:</strong> Threat modeling. Defense in depth. Fail securely.',
+        '<strong>A05 Security Misconfiguration:</strong> Disable PHP errors in production. Remove defaults. Patch.',
+        '<strong>A06 Vulnerable Components:</strong> composer audit. Keep dependencies updated.',
+        '<strong>A07 Auth Failures:</strong> Rate limit login. Regenerate session. Same error message.',
+        '<strong>A08 Data Integrity Failures:</strong> Verify serialized data. Use signed tokens.',
+        '<strong>A09 Security Logging:</strong> Log all auth events, access failures, validation failures.',
+        '<strong>A10 SSRF:</strong> Validate/allowlist URLs in user input before server-side requests.',
+      ],
+    },
+  },
 };

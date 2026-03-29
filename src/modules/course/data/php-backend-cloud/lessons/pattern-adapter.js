@@ -10,21 +10,16 @@ export default {
     'Explain how to test code that uses an Adapter without hitting the real third-party API',
     'Recognise the Adapter pattern inside Laravel (filesystem drivers, cache drivers, mail transports)',
   ],
-  body: `
-<h2>The Problem: Incompatible Interfaces</h2>
-<p>Imagine your e-commerce platform was built years ago with a home-grown payment processor. Your business logic calls <code>$processor->charge($amount, $cardToken)</code>. Now you want to switch to Stripe, whose SDK uses <code>PaymentIntent::create([...])</code>. You have two choices: rewrite every call site throughout your codebase, or write a thin adapter that makes Stripe look like your old processor. The second option is safer, faster, and keeps your domain code clean. The Adapter pattern is the formal name for that second choice.</p>
+  segments: [
+    { type: 'h2', text: 'The Problem: Incompatible Interfaces' },
+    { type: 'p', html: 'Imagine your e-commerce platform was built years ago with a home-grown payment processor. Your business logic calls <code>$processor->charge($amount, $cardToken)</code>. Now you want to switch to Stripe, whose SDK uses <code>PaymentIntent::create([...])</code>. You have two choices: rewrite every call site throughout your codebase, or write a thin adapter that makes Stripe look like your old processor. The second option is safer, faster, and keeps your domain code clean. The Adapter pattern is the formal name for that second choice.' },
 
-<div class="callout callout-tip">
-  <div class="callout-title">When to Reach for an Adapter</div>
-  <p>Use the Adapter pattern when you need to use an existing class but its interface does not match what the rest of your code expects — especially for third-party libraries you cannot (or should not) modify.</p>
-</div>
+    { type: 'callout', style: 'tip', title: 'When to Reach for an Adapter', html: 'Use the Adapter pattern when you need to use an existing class but its interface does not match what the rest of your code expects — especially for third-party libraries you cannot (or should not) modify.' },
 
-<h2>Defining the Target Interface</h2>
-<p>Start by defining the interface your application code already knows about (or should know about). This becomes the stable contract everything inside your system depends on. All third-party details stay on the other side of this boundary.</p>
+    { type: 'h2', text: 'Defining the Target Interface' },
+    { type: 'p', html: 'Start by defining the interface your application code already knows about (or should know about). This becomes the stable contract everything inside your system depends on. All third-party details stay on the other side of this boundary.' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 
 namespace App\Payment;
 
@@ -40,18 +35,14 @@ interface PaymentGatewayInterface
     public function charge(int $amountInCents, string $cardToken): string;
 
     public function refund(string $transactionId, int $amountInCents): bool;
-}
-</code></pre>
-</div>
+}` },
 
-<p>All application code — controllers, order services, invoice generators — depends only on <code>PaymentGatewayInterface</code>. No concrete vendor class ever leaks into business logic.</p>
+    { type: 'p', html: 'All application code — controllers, order services, invoice generators — depends only on <code>PaymentGatewayInterface</code>. No concrete vendor class ever leaks into business logic.' },
 
-<h2>Object Adapter: Wrapping Stripe</h2>
-<p>An <strong>object adapter</strong> holds a reference to the adaptee (the third-party class) and delegates calls to it. This is the preferred approach because it relies on composition, not inheritance, making it easy to swap adaptees or stack decorators later.</p>
+    { type: 'h2', text: 'Object Adapter: Wrapping Stripe' },
+    { type: 'p', html: 'An <strong>object adapter</strong> holds a reference to the adaptee (the third-party class) and delegates calls to it. This is the preferred approach because it relies on composition, not inheritance, making it easy to swap adaptees or stack decorators later.' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 
 namespace App\Payment\Adapters;
 
@@ -94,16 +85,12 @@ class StripeAdapter implements PaymentGatewayInterface
 
         return $refund->status === 'succeeded';
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Object Adapter: Wrapping a Legacy Processor</h2>
-<p>The same pattern adapts an old in-house class whose interface cannot be changed — perhaps it lives in a shared library maintained by another team or is a vendored Composer package.</p>
+    { type: 'h2', text: 'Object Adapter: Wrapping a Legacy Processor' },
+    { type: 'p', html: 'The same pattern adapts an old in-house class whose interface cannot be changed — perhaps it lives in a shared library maintained by another team or is a vendored Composer package.' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 
 namespace App\Payment\Adapters;
 
@@ -139,16 +126,12 @@ class LegacyProcessorAdapter implements PaymentGatewayInterface
             $amountInCents / 100
         );
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Class Adapter: Using Inheritance (and Why to Avoid It)</h2>
-<p>A <strong>class adapter</strong> extends the adaptee directly and also implements the target interface. In PHP this works but is considered inferior because single-inheritance locks you into the adaptee's hierarchy and makes the class harder to decorate or mock.</p>
+    { type: 'h2', text: 'Class Adapter: Using Inheritance (and Why to Avoid It)' },
+    { type: 'p', html: 'A <strong>class adapter</strong> extends the adaptee directly and also implements the target interface. In PHP this works but is considered inferior because single-inheritance locks you into the adaptee\'s hierarchy and makes the class harder to decorate or mock.' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 
 // Class adapter — shown for comparison; prefer the object adapter above
 namespace App\Payment\Adapters;
@@ -175,16 +158,12 @@ class LegacyClassAdapter extends OldProcessorClient implements PaymentGatewayInt
 
 // Problem: you are now locked into OldProcessorClient's entire inheritance
 // hierarchy. Adding a Decorator later becomes very painful.
-// You also expose all of OldProcessorClient's public methods to callers.
-</code></pre>
-</div>
+// You also expose all of OldProcessorClient's public methods to callers.` },
 
-<h2>Wiring Adapters with Laravel's Service Container</h2>
-<p>Register the adapter in a service provider so the rest of the application never needs to know which gateway is active. Switching vendors becomes a one-line config change.</p>
+    { type: 'h2', text: 'Wiring Adapters with Laravel\'s Service Container' },
+    { type: 'p', html: 'Register the adapter in a service provider so the rest of the application never needs to know which gateway is active. Switching vendors becomes a one-line config change.' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 
 namespace App\Providers;
 
@@ -228,16 +207,12 @@ class OrderController extends Controller
 
         return response()->json(['status' => 'paid', 'transaction_id' => $txId]);
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Testing with a Fake Adapter</h2>
-<p>Because all application code depends on the interface, testing is trivial. Swap the real adapter for a lightweight fake — no Stripe sandbox, no network requests, no side effects.</p>
+    { type: 'h2', text: 'Testing with a Fake Adapter' },
+    { type: 'p', html: 'Because all application code depends on the interface, testing is trivial. Swap the real adapter for a lightweight fake — no Stripe sandbox, no network requests, no side effects.' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 
 namespace Tests\Fakes;
 
@@ -299,53 +274,39 @@ class CheckoutTest extends TestCase
         $this->postJson('/checkout', ['amount' => 5000, 'token' => 'tok_test'])
              ->assertStatus(422);
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Adapter vs Facade vs Decorator</h2>
-<p>These three structural patterns are easy to confuse. The key distinction lies in <em>intent</em>: Adapter converts an interface, Facade simplifies a subsystem, and Decorator adds behaviour while preserving the same interface.</p>
-<ul>
-  <li><strong>Adapter</strong> — the adaptee's interface is <em>incompatible</em> with what callers expect. The adapter converts one to the other.</li>
-  <li><strong>Facade</strong> — the subsystem's interface is not necessarily incompatible, just overly complex. A Facade hides complexity behind a simpler API.</li>
-  <li><strong>Decorator</strong> — both the wrapper and the wrapped object implement <em>the same interface</em>. Used to add behaviour (logging, caching) transparently.</li>
-</ul>
+    { type: 'h2', text: 'Adapter vs Facade vs Decorator' },
+    { type: 'p', html: 'These three structural patterns are easy to confuse. The key distinction lies in <em>intent</em>: Adapter converts an interface, Facade simplifies a subsystem, and Decorator adds behaviour while preserving the same interface.' },
+    { type: 'ul', items: [
+      '<strong>Adapter</strong> — the adaptee\'s interface is <em>incompatible</em> with what callers expect. The adapter converts one to the other.',
+      '<strong>Facade</strong> — the subsystem\'s interface is not necessarily incompatible, just overly complex. A Facade hides complexity behind a simpler API.',
+      '<strong>Decorator</strong> — both the wrapper and the wrapped object implement <em>the same interface</em>. Used to add behaviour (logging, caching) transparently.',
+    ]},
 
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: Why prefer object adapter over class adapter in PHP?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>PHP only supports single inheritance, so extending the adaptee class locks you out of extending anything else and forces you to expose the adaptee's entire public API. Object adapter composes the adaptee, leaving you free to extend a base class, add decorators on top, or swap the adaptee entirely at runtime. It also makes unit testing easier because you can inject a mock adaptee through the constructor.</p></div>
-</div>
+    { type: 'qa', pairs: [
+      {
+        q: 'Q: Why prefer object adapter over class adapter in PHP?',
+        a: '<p>PHP only supports single inheritance, so extending the adaptee class locks you out of extending anything else and forces you to expose the adaptee\'s entire public API. Object adapter composes the adaptee, leaving you free to extend a base class, add decorators on top, or swap the adaptee entirely at runtime. It also makes unit testing easier because you can inject a mock adaptee through the constructor.</p>',
+      },
+      {
+        q: 'Q: How does Laravel use the Adapter pattern internally?',
+        a: '<p>Laravel\'s filesystem, cache, mail, and queue systems all rely on adapters behind driver-based managers. For example, <code>Illuminate\\Mail\\Transport\\MailgunTransport</code> adapts the Mailgun HTTP API to Symfony Mailer\'s <code>TransportInterface</code>. Switching from Mailgun to SES in <code>config/mail.php</code> simply swaps which adapter the container resolves — application code that calls <code>Mail::send()</code> never changes.</p>',
+      },
+      {
+        q: 'Q: A colleague argues "just call the Stripe SDK directly in the controller — it\'s faster to build." How do you respond?',
+        a: '<p>Direct SDK coupling creates three real problems: (1) every call site must be updated if Stripe changes its API or you switch vendors; (2) you cannot test the controller without a live Stripe connection or fragile static mock setup; (3) there is no single place to add cross-cutting concerns (logging, retry logic, currency conversion). An adapter costs ~30 lines written once and saves hours of refactoring later. The "faster" argument only holds for throwaway prototypes, not production systems.</p>',
+      },
+    ]},
 
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: How does Laravel use the Adapter pattern internally?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>Laravel's filesystem, cache, mail, and queue systems all rely on adapters behind driver-based managers. For example, <code>Illuminate\Mail\Transport\MailgunTransport</code> adapts the Mailgun HTTP API to Symfony Mailer's <code>TransportInterface</code>. Switching from Mailgun to SES in <code>config/mail.php</code> simply swaps which adapter the container resolves — application code that calls <code>Mail::send()</code> never changes.</p></div>
-</div>
-
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: A colleague argues "just call the Stripe SDK directly in the controller — it's faster to build." How do you respond?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>Direct SDK coupling creates three real problems: (1) every call site must be updated if Stripe changes its API or you switch vendors; (2) you cannot test the controller without a live Stripe connection or fragile static mock setup; (3) there is no single place to add cross-cutting concerns (logging, retry logic, currency conversion). An adapter costs ~30 lines written once and saves hours of refactoring later. The "faster" argument only holds for throwaway prototypes, not production systems.</p></div>
-</div>
-
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>The Adapter pattern converts an incompatible interface into one your code expects — without modifying either side.</li>
-    <li>Always define a <strong>target interface</strong> first; the adapter implements that interface and wraps the adaptee.</li>
-    <li>Prefer <strong>object adapter</strong> (composition) over class adapter (inheritance) — more flexible, more testable, avoids single-inheritance lock-in.</li>
-    <li>Wrap all third-party SDKs (Stripe, Mailgun, AWS) behind your own interface so that vendor swaps are a single container binding change.</li>
-    <li>Adapters make unit testing trivial: swap the real adapter for a <strong>fake implementation</strong> in the service container.</li>
-    <li>Distinguish Adapter (interface conversion) from Facade (complexity hiding) and Decorator (behaviour addition at the same interface).</li>
-    <li>Laravel's mail, cache, filesystem, and queue drivers are real-world examples of the Adapter pattern shipped with the framework.</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'The Adapter pattern converts an incompatible interface into one your code expects — without modifying either side.',
+      'Always define a <strong>target interface</strong> first; the adapter implements that interface and wraps the adaptee.',
+      'Prefer <strong>object adapter</strong> (composition) over class adapter (inheritance) — more flexible, more testable, avoids single-inheritance lock-in.',
+      'Wrap all third-party SDKs (Stripe, Mailgun, AWS) behind your own interface so that vendor swaps are a single container binding change.',
+      'Adapters make unit testing trivial: swap the real adapter for a <strong>fake implementation</strong> in the service container.',
+      'Distinguish Adapter (interface conversion) from Facade (complexity hiding) and Decorator (behaviour addition at the same interface).',
+      'Laravel\'s mail, cache, filesystem, and queue drivers are real-world examples of the Adapter pattern shipped with the framework.',
+    ]},
+  ],
 };

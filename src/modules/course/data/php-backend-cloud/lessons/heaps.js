@@ -11,31 +11,26 @@ export default {
     'Articulate when a heap outperforms a sorted array and when it does not',
     'State all heap operation complexities and explain why build-heap is O(n) not O(n log n)',
   ],
-  body: `
-<h2>Heap Fundamentals: Structure & Property</h2>
-<p>A binary heap is stored as a flat array — no pointers needed. For a node at index <code>i</code> (1-indexed): left child is at <code>2i</code>, right child at <code>2i+1</code>, parent at <code>⌊i/2⌋</code>. This layout guarantees cache-friendly access and O(1) parent/child navigation. The heap property is maintained by two operations:</p>
-<ul>
-  <li><strong>Heapify-up (sift-up)</strong> — after insertion at the last position, swap with parent until the property holds.</li>
-  <li><strong>Heapify-down (sift-down)</strong> — after replacing the root with the last element (during extract), swap with the smaller child until the property holds.</li>
-</ul>
+  segments: [
+    { type: 'h2', text: 'Heap Fundamentals: Structure & Property' },
+    { type: 'p', html: 'A binary heap is stored as a flat array — no pointers needed. For a node at index <code>i</code> (1-indexed): left child is at <code>2i</code>, right child at <code>2i+1</code>, parent at <code>⌊i/2⌋</code>. This layout guarantees cache-friendly access and O(1) parent/child navigation. The heap property is maintained by two operations:' },
+    { type: 'ul', items: [
+      '<strong>Heapify-up (sift-up)</strong> — after insertion at the last position, swap with parent until the property holds.',
+      '<strong>Heapify-down (sift-down)</strong> — after replacing the root with the last element (during extract), swap with the smaller child until the property holds.',
+    ]},
 
-<table class="ctable">
-  <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
-  <tbody>
-    <tr><td>Insert</td><td class="on">O(log n)</td><td class="o1">O(1)</td></tr>
-    <tr><td>Extract min/max</td><td class="on">O(log n)</td><td class="o1">O(1)</td></tr>
-    <tr><td>Peek min/max</td><td class="o1">O(1)</td><td class="o1">O(1)</td></tr>
-    <tr><td>Build heap from array</td><td class="on">O(n)</td><td class="o1">O(1)</td></tr>
-    <tr><td>Heap sort</td><td class="on">O(n log n)</td><td class="o1">O(1)</td></tr>
-    <tr><td>Decrease key (with index)</td><td class="on">O(log n)</td><td class="o1">O(1)</td></tr>
-  </tbody>
-</table>
+    { type: 'table', headers: ['Operation', 'Time', 'Space'], rows: [
+      ['Insert',                    { v: 'O(log n)', cls: 'on' }, { v: 'O(1)', cls: 'o1' }],
+      ['Extract min/max',           { v: 'O(log n)', cls: 'on' }, { v: 'O(1)', cls: 'o1' }],
+      ['Peek min/max',              { v: 'O(1)',     cls: 'o1' }, { v: 'O(1)', cls: 'o1' }],
+      ['Build heap from array',     { v: 'O(n)',     cls: 'on' }, { v: 'O(1)', cls: 'o1' }],
+      ['Heap sort',                 { v: 'O(n log n)', cls: 'on' }, { v: 'O(1)', cls: 'o1' }],
+      ['Decrease key (with index)', { v: 'O(log n)', cls: 'on' }, { v: 'O(1)', cls: 'o1' }],
+    ]},
 
-<p>Build-heap from an unsorted array is O(n) — not O(n log n) — because most nodes are near the bottom of the tree where sift-down work is minimal. The mathematical proof uses the summation of heights across levels of the tree.</p>
+    { type: 'p', html: 'Build-heap from an unsorted array is O(n) — not O(n log n) — because most nodes are near the bottom of the tree where sift-down work is minimal. The mathematical proof uses the summation of heights across levels of the tree.' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 // Min-heap implemented manually on a 1-indexed array
 class MinHeap
 {
@@ -85,16 +80,12 @@ class MinHeap
             $i = $smallest;
         }
     }
-}
-</code></pre>
-</div>
+}` },
 
-<h2>PHP SplMinHeap &amp; SplMaxHeap</h2>
-<p>PHP's SPL provides <code>SplMinHeap</code> and <code>SplMaxHeap</code> as heap implementations with a standard interface. For custom priority (e.g., objects ordered by a field), extend <code>SplPriorityQueue</code> or <code>SplMinHeap</code> and override <code>compare()</code>. A common gotcha: <code>SplPriorityQueue</code> is a max-priority-queue by default and pops the highest priority first. To simulate a min-priority-queue, negate the priority value.</p>
+    { type: 'h2', text: 'PHP SplMinHeap & SplMaxHeap' },
+    { type: 'p', html: 'PHP\'s SPL provides <code>SplMinHeap</code> and <code>SplMaxHeap</code> as heap implementations with a standard interface. For custom priority (e.g., objects ordered by a field), extend <code>SplPriorityQueue</code> or <code>SplMinHeap</code> and override <code>compare()</code>. A common gotcha: <code>SplPriorityQueue</code> is a max-priority-queue by default and pops the highest priority first. To simulate a min-priority-queue, negate the priority value.' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 // SplMinHeap basic usage
 $heap = new SplMinHeap();
 foreach ([5, 1, 3, 2, 4] as $n) {
@@ -129,16 +120,12 @@ $pq = new SplPriorityQueue();
 $pq->insert('job-A', 3);
 $pq->insert('job-B', 10);
 $pq->insert('job-C', 1);
-echo $pq->extract(); // job-B (priority 10)
-</code></pre>
-</div>
+echo $pq->extract(); // job-B (priority 10)` },
 
-<h2>Top-K Problems</h2>
-<p>Finding the K largest (or smallest) elements in an array of n elements can be done by sorting in O(n log n), but a heap achieves O(n log K) — a significant win when K ≪ n. The technique: maintain a min-heap of size K while streaming elements. If the new element is larger than the heap's minimum, pop the minimum and push the new element. After processing all n elements, the heap contains the K largest.</p>
+    { type: 'h2', text: 'Top-K Problems' },
+    { type: 'p', html: 'Finding the K largest (or smallest) elements in an array of n elements can be done by sorting in O(n log n), but a heap achieves O(n log K) — a significant win when K ≪ n. The technique: maintain a min-heap of size K while streaming elements. If the new element is larger than the heap\'s minimum, pop the minimum and push the new element. After processing all n elements, the heap contains the K largest.' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 // Top-K largest elements — O(n log K) using a min-heap of size K
 function topKLargest(array $nums, int $k): array
 {
@@ -182,16 +169,12 @@ function topKFrequent(array $nums, int $k): array
 
 $nums = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5];
 print_r(topKLargest($nums, 3));    // [5, 6, 9]
-print_r(topKFrequent($nums, 2));   // [5, 3] or [5, 1]
-</code></pre>
-</div>
+print_r(topKFrequent($nums, 2));   // [5, 3] or [5, 1]` },
 
-<h2>Merge K Sorted Lists</h2>
-<p>Merging K sorted arrays (or linked lists) naively by concatenation and re-sorting costs O(N log N) where N is the total number of elements. Using a min-heap, the optimal solution costs O(N log K): push the first element of each list into a min-heap, repeatedly extract the minimum, and push the next element from that list. The heap never grows beyond K elements, so each operation costs O(log K).</p>
+    { type: 'h2', text: 'Merge K Sorted Lists' },
+    { type: 'p', html: 'Merging K sorted arrays (or linked lists) naively by concatenation and re-sorting costs O(N log N) where N is the total number of elements. Using a min-heap, the optimal solution costs O(N log K): push the first element of each list into a min-heap, repeatedly extract the minimum, and push the next element from that list. The heap never grows beyond K elements, so each operation costs O(log K).' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 // Merge K sorted arrays — O(N log K)
 function mergeKSorted(array $lists): array
 {
@@ -223,16 +206,12 @@ $lists = [
     [2, 5, 8],
     [3, 6, 9],
 ];
-print_r(mergeKSorted($lists)); // [1, 2, 3, 4, 5, 6, 7, 8, 9]
-</code></pre>
-</div>
+print_r(mergeKSorted($lists)); // [1, 2, 3, 4, 5, 6, 7, 8, 9]` },
 
-<h2>Median of a Data Stream</h2>
-<p>Finding the median of a static sorted array is O(1) after O(n log n) sorting. For a dynamic stream where elements arrive one by one, the heap-based solution maintains two heaps: a max-heap for the lower half and a min-heap for the upper half, keeping them balanced within one element of each other. The median is always at the tops of these heaps. Each insertion costs O(log n); each median query costs O(1).</p>
+    { type: 'h2', text: 'Median of a Data Stream' },
+    { type: 'p', html: 'Finding the median of a static sorted array is O(1) after O(n log n) sorting. For a dynamic stream where elements arrive one by one, the heap-based solution maintains two heaps: a max-heap for the lower half and a min-heap for the upper half, keeping them balanced within one element of each other. The median is always at the tops of these heaps. Each insertion costs O(log n); each median query costs O(1).' },
 
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'code', lang: 'php', label: 'PHP', code: `&lt;?php
 // Median of data stream using two heaps
 class MedianFinder
 {
@@ -278,59 +257,42 @@ class MedianFinder
 $mf = new MedianFinder();
 $mf->addNum(1); echo $mf->findMedian(); // 1.0
 $mf->addNum(2); echo $mf->findMedian(); // 1.5
-$mf->addNum(3); echo $mf->findMedian(); // 2.0
-</code></pre>
-</div>
+$mf->addNum(3); echo $mf->findMedian(); // 2.0` },
 
-<h2>Heap vs Sorted Array: When to Choose Which</h2>
-<p>Both structures maintain ordered data, but their performance profiles differ significantly. Choose based on your access pattern:</p>
-<table class="ctable">
-  <thead><tr><th>Operation</th><th>Heap</th><th>Sorted Array</th></tr></thead>
-  <tbody>
-    <tr><td>Insert element</td><td class="on">O(log n)</td><td class="on">O(n) — shift elements</td></tr>
-    <tr><td>Delete min/max</td><td class="on">O(log n)</td><td class="o1">O(1) pop from end/front</td></tr>
-    <tr><td>Access kth element</td><td class="on">O(k log n)</td><td class="o1">O(1) by index</td></tr>
-    <tr><td>Search arbitrary value</td><td class="on">O(n)</td><td class="on">O(log n) binary search</td></tr>
-    <tr><td>Build from unsorted</td><td class="on">O(n)</td><td class="on">O(n log n)</td></tr>
-  </tbody>
-</table>
-<p>Use a heap when you repeatedly need only the minimum or maximum and insertions are frequent (priority queues, event simulation, Dijkstra's algorithm). Use a sorted array (or balanced BST) when you need arbitrary element access, range queries, or binary search.</p>
+    { type: 'h2', text: 'Heap vs Sorted Array: When to Choose Which' },
+    { type: 'p', html: 'Both structures maintain ordered data, but their performance profiles differ significantly. Choose based on your access pattern:' },
+    { type: 'table', headers: ['Operation', 'Heap', 'Sorted Array'], rows: [
+      ['Insert element',         { v: 'O(log n)',   cls: 'on' }, { v: 'O(n) — shift elements',    cls: 'on' }],
+      ['Delete min/max',         { v: 'O(log n)',   cls: 'on' }, { v: 'O(1) pop from end/front',  cls: 'o1' }],
+      ['Access kth element',     { v: 'O(k log n)', cls: 'on' }, { v: 'O(1) by index',            cls: 'o1' }],
+      ['Search arbitrary value', { v: 'O(n)',        cls: 'on' }, { v: 'O(log n) binary search',  cls: 'on' }],
+      ['Build from unsorted',    { v: 'O(n)',        cls: 'on' }, { v: 'O(n log n)',               cls: 'on' }],
+    ]},
+    { type: 'p', html: 'Use a heap when you repeatedly need only the minimum or maximum and insertions are frequent (priority queues, event simulation, Dijkstra\'s algorithm). Use a sorted array (or balanced BST) when you need arbitrary element access, range queries, or binary search.' },
 
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: Why is the top-K problem O(n log K) with a heap and not O(n log n)?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>Each of the n elements is inserted into and potentially extracted from a heap of maximum size K. Both insert and extract on a heap of size K cost O(log K). Since we do at most one insert and one extract per element, the total cost is O(n · log K). When K ≪ n (e.g., finding the top 10 results from 10 million records), log K is essentially a small constant, making the algorithm nearly linear. Sorting the entire array would cost O(n log n) regardless of K.</p></div>
-</div>
+    { type: 'qa', pairs: [
+      {
+        q: 'Q: Why is the top-K problem O(n log K) with a heap and not O(n log n)?',
+        a: 'Each of the n elements is inserted into and potentially extracted from a heap of maximum size K. Both insert and extract on a heap of size K cost O(log K). Since we do at most one insert and one extract per element, the total cost is O(n · log K). When K ≪ n (e.g., finding the top 10 results from 10 million records), log K is essentially a small constant, making the algorithm nearly linear. Sorting the entire array would cost O(n log n) regardless of K.',
+      },
+      {
+        q: 'Q: Why does PHP\'s SplPriorityQueue::compare() have inverted semantics compared to usort()?',
+        a: 'SplMinHeap and SplMaxHeap use compare($a, $b) with the convention that returning a positive value means $a should come <em>after</em> $b in extraction order — the opposite of PHP\'s spaceship operator and usort. This is because the SPL heap is internally a max-heap at the C level, and the compare function controls which element is treated as "larger" (i.e., extracted first). To build a min-heap with SplMinHeap, its compare returns positive when $a > $b so that smaller values appear at the top. When writing custom comparators, always test with a small example because getting the sign wrong silently produces a max-heap instead of a min-heap or vice versa.',
+      },
+      {
+        q: 'Q: How does Dijkstra\'s algorithm use a heap, and what is its time complexity?',
+        a: 'Dijkstra\'s shortest-path algorithm maintains a min-heap (priority queue) of (distance, vertex) pairs. It repeatedly extracts the vertex with the smallest known distance, then relaxes (updates) the distances to its neighbours. If a shorter path is found, the neighbour is re-inserted into the heap. With a binary heap and an adjacency list, the complexity is O((V + E) log V): each vertex is extracted once (V extractions at O(log V) each) and each edge causes at most one heap insertion (E insertions at O(log V) each). With a Fibonacci heap, the decrease-key operation is O(1) amortised, giving O(E + V log V) total — theoretically better for dense graphs but rarely used in practice due to implementation complexity.',
+      },
+    ]},
 
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: Why does PHP's SplPriorityQueue::compare() have inverted semantics compared to usort()?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>SplMinHeap and SplMaxHeap use compare($a, $b) with the convention that returning a positive value means $a should come <em>after</em> $b in extraction order — the opposite of PHP's spaceship operator and usort. This is because the SPL heap is internally a max-heap at the C level, and the compare function controls which element is treated as "larger" (i.e., extracted first). To build a min-heap with SplMinHeap, its compare returns positive when $a > $b so that smaller values appear at the top. When writing custom comparators, always test with a small example because getting the sign wrong silently produces a max-heap instead of a min-heap or vice versa.</p></div>
-</div>
-
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: How does Dijkstra's algorithm use a heap, and what is its time complexity?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a"><p>Dijkstra's shortest-path algorithm maintains a min-heap (priority queue) of (distance, vertex) pairs. It repeatedly extracts the vertex with the smallest known distance, then relaxes (updates) the distances to its neighbours. If a shorter path is found, the neighbour is re-inserted into the heap. With a binary heap and an adjacency list, the complexity is O((V + E) log V): each vertex is extracted once (V extractions at O(log V) each) and each edge causes at most one heap insertion (E insertions at O(log V) each). With a Fibonacci heap, the decrease-key operation is O(1) amortised, giving O(E + V log V) total — theoretically better for dense graphs but rarely used in practice due to implementation complexity.</p></div>
-</div>
-
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Min-heap: root is always the minimum. Max-heap: root is always the maximum. Both support O(log n) insert and extract.</li>
-    <li>PHP provides SplMinHeap, SplMaxHeap, and SplPriorityQueue. Custom ordering requires overriding compare() with inverted semantics.</li>
-    <li>Top-K largest: maintain a min-heap of size K — O(n log K), not O(n log n).</li>
-    <li>Merge K sorted lists: use a min-heap of size K — O(N log K) where N is total elements.</li>
-    <li>Median of stream: two-heap solution (max-heap lower half + min-heap upper half) gives O(log n) insert and O(1) median.</li>
-    <li>Build-heap from an unsorted array is O(n) — not O(n log n) — due to the mathematical summation of sift-down work.</li>
-    <li>Choose heap over sorted array when insertions and min/max extractions are the primary operations; sorted arrays win for arbitrary index access and binary search.</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Min-heap: root is always the minimum. Max-heap: root is always the maximum. Both support O(log n) insert and extract.',
+      'PHP provides SplMinHeap, SplMaxHeap, and SplPriorityQueue. Custom ordering requires overriding compare() with inverted semantics.',
+      'Top-K largest: maintain a min-heap of size K — O(n log K), not O(n log n).',
+      'Merge K sorted lists: use a min-heap of size K — O(N log K) where N is total elements.',
+      'Median of stream: two-heap solution (max-heap lower half + min-heap upper half) gives O(log n) insert and O(1) median.',
+      'Build-heap from an unsorted array is O(n) — not O(n log n) — due to the mathematical summation of sift-down work.',
+      'Choose heap over sorted array when insertions and min/max extractions are the primary operations; sorted arrays win for arbitrary index access and binary search.',
+    ]},
+  ],
 };

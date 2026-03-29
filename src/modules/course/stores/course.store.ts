@@ -44,7 +44,13 @@ export const useCourseStore = defineStore('course', {
         const base = state.lessons[id] ?? null
         if (!base || locale === 'en') return base
         const overlay = localeOverlays[locale]?.[id]
-        return overlay ? { ...base, ...overlay } : base
+        if (!overlay) return base
+        // bodyTexts from locale deep-merges with English bodyTexts (locale wins per key)
+        const bodyTexts = overlay.bodyTexts
+          ? { ...base.bodyTexts, ...overlay.bodyTexts }
+          : base.bodyTexts
+        const { bodyTexts: _b, ...rest } = overlay
+        return { ...base, ...rest, bodyTexts }
       },
 
     hasContent:

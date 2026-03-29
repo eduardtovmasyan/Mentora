@@ -10,11 +10,9 @@ export default {
     'Explain push vs pull notification models',
     'Know the downsides: debugging complexity, circular event chains',
   ],
-  body: `
-<h2>Core Implementation</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Classic Observer</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">interface Observer {
+  segments: [
+    { type: 'h2', text: 'Core Implementation' },
+    { type: 'code', lang: 'php', label: 'PHP — Classic Observer', code: `interface Observer {
     public function update(string $event, mixed $data): void;
 }
 
@@ -62,14 +60,10 @@ class AuditLogger implements Observer {
 $emitter = new EventEmitter();
 $emitter->subscribe('user.registered', new EmailNotifier());
 $emitter->subscribe('user.registered', new AuditLogger());
-$emitter->notify('user.registered', ['email' => 'alice@example.com']);
-</code></pre>
-</div>
+$emitter->notify('user.registered', ['email' => 'alice@example.com']);` },
 
-<h2>Laravel Events & Listeners</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Laravel Event</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">// app/Events/UserRegistered.php
+    { type: 'h2', text: 'Laravel Events & Listeners' },
+    { type: 'code', lang: 'php', label: 'PHP — Laravel Event', code: `// app/Events/UserRegistered.php
 class UserRegistered {
     public function __construct(public readonly User $user) {}
 }
@@ -99,41 +93,24 @@ protected $listen = [
 // Dispatching
 event(new UserRegistered($user));
 // or
-UserRegistered::dispatch($user);
-</code></pre>
-</div>
+UserRegistered::dispatch($user);` },
 
-<h2>Push vs Pull Models</h2>
-<div class="callout callout-info">
-  <div class="callout-title">Push vs Pull</div>
-  <p><strong>Push</strong> (above): Subject sends event data directly to observers. Observers receive exactly what Subject decides to push. Simple but couples the data shape to the Subject.<br>
-  <strong>Pull</strong>: Subject notifies with minimal data; observers query the subject for details. More flexible — observers can ask for only what they need — but requires observers to hold a reference to the subject.</p>
-</div>
+    { type: 'h2', text: 'Push vs Pull Models' },
+    { type: 'callout', style: 'info', title: 'Push vs Pull', html: '<strong>Push</strong> (above): Subject sends event data directly to observers. Observers receive exactly what Subject decides to push. Simple but couples the data shape to the Subject.<br>\n  <strong>Pull</strong>: Subject notifies with minimal data; observers query the subject for details. More flexible — observers can ask for only what they need — but requires observers to hold a reference to the subject.' },
 
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)">
-    <span class="qa-q-text">Q: What are the downsides of Observer?</span>
-    <span class="qa-arrow">▼</span>
-  </div>
-  <div class="qa-a">
-    <ul>
-      <li><strong>Debugging difficulty</strong>: following an event chain across multiple listeners is hard</li>
-      <li><strong>Unexpected ordering</strong>: listener execution order may not be obvious</li>
-      <li><strong>Circular events</strong>: listener A fires event B which fires event A — infinite loop</li>
-      <li><strong>Memory leaks</strong>: forgotten subscriptions keep observer objects alive</li>
-    </ul>
-  </div>
-</div>
+    { type: 'qa', pairs: [
+      {
+        q: 'Q: What are the downsides of Observer?',
+        a: '<ul>\n      <li><strong>Debugging difficulty</strong>: following an event chain across multiple listeners is hard</li>\n      <li><strong>Unexpected ordering</strong>: listener execution order may not be obvious</li>\n      <li><strong>Circular events</strong>: listener A fires event B which fires event A — infinite loop</li>\n      <li><strong>Memory leaks</strong>: forgotten subscriptions keep observer objects alive</li>\n    </ul>',
+      },
+    ]},
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Observer: Subject notifies all registered observers when its state changes — one-to-many</li>
-    <li>Decouples publisher from subscriber — publisher doesn't know who is listening</li>
-    <li>Laravel: event classes carry data, listener classes handle it, EventServiceProvider maps them</li>
-    <li>Implement ShouldQueue on a listener to process it asynchronously in a queue worker</li>
-    <li>Watch for circular event chains and memory leaks from uncleaned subscriptions</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Observer: Subject notifies all registered observers when its state changes — one-to-many',
+      'Decouples publisher from subscriber — publisher doesn\'t know who is listening',
+      'Laravel: event classes carry data, listener classes handle it, EventServiceProvider maps them',
+      'Implement ShouldQueue on a listener to process it asynchronously in a queue worker',
+      'Watch for circular event chains and memory leaks from uncleaned subscriptions',
+    ]},
+  ],
 };

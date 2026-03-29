@@ -10,15 +10,13 @@ export default {
     'Recognize the Two Sum pattern instantly',
     'Always use isset() not in_array() for O(1) membership testing',
   ],
-  body: `
-<h2>How Hash Maps Work</h2>
-<p>A hash map runs the key through a <strong>hash function</strong> to get a bucket index, then stores the key-value pair in that bucket. Lookup just hashes the key again and jumps straight to the bucket — O(1).</p>
-<p><strong>Collision resolution:</strong> Two keys can hash to the same bucket. PHP uses <strong>chaining</strong> — each bucket holds a linked list of pairs. Python dicts use <strong>open addressing</strong> — on collision, probe for the next empty slot. Worst case (all keys in one bucket) is O(n) lookup — always say "O(1) <em>average</em>" in interviews.</p>
+  segments: [
+    { type: 'h2', text: 'How Hash Maps Work' },
+    { type: 'p', html: 'A hash map runs the key through a <strong>hash function</strong> to get a bucket index, then stores the key-value pair in that bucket. Lookup just hashes the key again and jumps straight to the bucket — O(1).' },
+    { type: 'p', html: '<strong>Collision resolution:</strong> Two keys can hash to the same bucket. PHP uses <strong>chaining</strong> — each bucket holds a linked list of pairs. Python dicts use <strong>open addressing</strong> — on collision, probe for the next empty slot. Worst case (all keys in one bucket) is O(n) lookup — always say "O(1) <em>average</em>" in interviews.' },
 
-<h2>PHP Hash Map Patterns</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Core Patterns</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'PHP Hash Map Patterns' },
+    { type: 'code', lang: 'php', label: 'PHP — Core Patterns', code: `&lt;?php
 // ── FREQUENCY COUNTING ───────────────────────────────────────
 $freq = [];
 $str  = "aababc";
@@ -71,15 +69,11 @@ function containsDuplicate(array $nums): bool
         $seen[$n] = true;
     }
     return false;
-}
-</code></pre>
-</div>
+}` },
 
-<h2>Hash Set — O(1) Membership Testing</h2>
-<p>Simulate a hash set with <code>['value' => true]</code>. Always use <code>isset($set[$val])</code> — never <code>in_array()</code> which is O(n).</p>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Hash Set</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Hash Set — O(1) Membership Testing' },
+    { type: 'p', html: 'Simulate a hash set with <code>[\'value\' => true]</code>. Always use <code>isset($set[$val])</code> — never <code>in_array()</code> which is O(n).' },
+    { type: 'code', lang: 'php', label: 'PHP — Hash Set', code: `&lt;?php
 // Longest consecutive sequence: [100,4,200,1,3,2] → 4 (1,2,3,4)
 function longestConsecutive(array $nums): int
 {
@@ -95,36 +89,30 @@ function longestConsecutive(array $nums): int
     }
     return $longest;
 }
-// Time: O(n) — each number touched at most twice
-</code></pre>
-</div>
+// Time: O(n) — each number touched at most twice` },
 
-<div class="callout callout-danger">
-<div class="callout-title">Critical: isset() vs in_array()</div>
-<p><code>isset($arr[$key])</code> is O(1) — it uses the hash. <code>in_array($val, $arr)</code> is O(n) — it scans every element. Many developers fail interviews by using <code>in_array</code> inside a loop, turning an O(n) solution into O(n²). Store values as keys and use <code>isset</code>.</p>
-</div>
+    { type: 'callout', style: 'danger', title: 'Critical: isset() vs in_array()', html: '<code>isset($arr[$key])</code> is O(1) — it uses the hash. <code>in_array($val, $arr)</code> is O(n) — it scans every element. Many developers fail interviews by using <code>in_array</code> inside a loop, turning an O(n) solution into O(n²). Store values as keys and use <code>isset</code>.' },
 
-<h2>Interview Questions</h2>
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)"><span class="qa-q-text">Q: Why is hash map lookup O(1) average but O(n) worst case?</span><span class="qa-arrow">▼</span></div>
-  <div class="qa-a"><p>On average the hash function spreads keys uniformly, so each bucket holds ~1 item and lookup costs O(1). Worst case: all keys hash to the same bucket. Lookup now walks a linked list of n items — O(n). Modern runtimes defend against this with randomized hash seeds per process start. PHP does this — so deliberately crafted adversarial inputs won't degrade performance across restarts.</p></div>
-</div>
-<div class="qa-block">
-  <div class="qa-q" onclick="toggleQA(this)"><span class="qa-q-text">Q: When would you use a sorted array instead of a hash map?</span><span class="qa-arrow">▼</span></div>
-  <div class="qa-a"><p>When you need ordered iteration, range queries, predecessor/successor lookups, or the k-th smallest element. A hash map gives O(1) exact-key lookup but has no concept of order. A sorted structure gives O(log n) lookup but lets you scan ranges, walk in sorted order, and answer "what is the next value greater than X?" Hash maps also use more memory per entry (key + value + metadata vs just value).</p></div>
-</div>
+    { type: 'h2', text: 'Interview Questions' },
+    { type: 'qa', pairs: [
+      {
+        q: 'Q: Why is hash map lookup O(1) average but O(n) worst case?',
+        a: 'On average the hash function spreads keys uniformly, so each bucket holds ~1 item and lookup costs O(1). Worst case: all keys hash to the same bucket. Lookup now walks a linked list of n items — O(n). Modern runtimes defend against this with randomized hash seeds per process start. PHP does this — so deliberately crafted adversarial inputs won\'t degrade performance across restarts.',
+      },
+      {
+        q: 'Q: When would you use a sorted array instead of a hash map?',
+        a: 'When you need ordered iteration, range queries, predecessor/successor lookups, or the k-th smallest element. A hash map gives O(1) exact-key lookup but has no concept of order. A sorted structure gives O(log n) lookup but lets you scan ranges, walk in sorted order, and answer "what is the next value greater than X?" Hash maps also use more memory per entry (key + value + metadata vs just value).',
+      },
+    ]},
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Hash map = O(1) average for lookup, insert, delete — use when you need to "remember"</li>
-    <li><code>isset($arr[$key])</code> is O(1). <code>in_array($val, $arr)</code> is O(n). Always use isset for membership</li>
-    <li>Two Sum pattern: for each element check if its complement is already in the map</li>
-    <li>Frequency map: foundation of anagram, majority element, first non-repeating problems</li>
-    <li>Hash set (value as key, true as value): deduplication, consecutive sequence</li>
-    <li>PHP uses chaining; hash seeds are randomized per-process to prevent attacks</li>
-    <li>Always say "O(1) average" — worst case is O(n)</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Hash map = O(1) average for lookup, insert, delete — use when you need to "remember"',
+      '<code>isset($arr[$key])</code> is O(1). <code>in_array($val, $arr)</code> is O(n). Always use isset for membership',
+      'Two Sum pattern: for each element check if its complement is already in the map',
+      'Frequency map: foundation of anagram, majority element, first non-repeating problems',
+      'Hash set (value as key, true as value): deduplication, consecutive sequence',
+      'PHP uses chaining; hash seeds are randomized per-process to prevent attacks',
+      'Always say "O(1) average" — worst case is O(n)',
+    ]},
+  ],
 };

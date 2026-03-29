@@ -10,11 +10,9 @@ export default {
     'Know why array_shift() is O(n) and use SplQueue instead',
     'Explain how BFS uses a queue for level-order traversal',
   ],
-  body: `
-<h2>Stack — LIFO (Last In, First Out)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Stack Problems</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+  segments: [
+    { type: 'h2', text: 'Stack — LIFO (Last In, First Out)' },
+    { type: 'code', lang: 'php', label: 'PHP — Stack Problems', code: `&lt;?php
 // PHP array as stack — end = "top"
 $stack = [];
 $stack[] = 1;           // push  O(1)
@@ -55,14 +53,10 @@ function dailyTemperatures(array $temps): array
     }
     return $result;
 }
-// Time: O(n) — each index pushed/popped at most once
-</code></pre>
-</div>
+// Time: O(n) — each index pushed/popped at most once` },
 
-<h2>Queue — FIFO (First In, First Out)</h2>
-<div class="code-block">
-<div class="code-header"><span class="code-lang">PHP — Queue with SplQueue</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
-<pre><code class="language-php">&lt;?php
+    { type: 'h2', text: 'Queue — FIFO (First In, First Out)' },
+    { type: 'code', lang: 'php', label: 'PHP — Queue with SplQueue', code: `&lt;?php
 // WARNING: array_shift() is O(n) — use SplQueue for O(1) dequeue
 $queue = new SplQueue();
 $queue->enqueue('task1'); // O(1)
@@ -93,19 +87,14 @@ function maxSlidingWindow(array $nums, int $k): array
     }
     return $result;
 }
-// Time: O(n)  Space: O(k)
-</code></pre>
-</div>
+// Time: O(n)  Space: O(k)` },
 
-<div class="keypoints">
-  <div class="keypoints-title">Key Points to Remember</div>
-  <ul>
-    <li>Stack: LIFO. Push/pop from same end. O(1) both. Use PHP array (end = top).</li>
-    <li>Queue: FIFO. Use SplQueue — array_shift() is O(n)!</li>
-    <li>Monotonic stack: decreasing/increasing order for "next greater/smaller element"</li>
-    <li>Deque: sliding window max/min in O(n) — maintains useful candidates only</li>
-    <li>BFS always uses a queue. DFS always uses a stack (or recursion).</li>
-  </ul>
-</div>
-`,
+    { type: 'keypoints', title: 'Key Points to Remember', items: [
+      'Stack: LIFO. Push/pop from same end. O(1) both. Use PHP array (end = top).',
+      'Queue: FIFO. Use SplQueue — array_shift() is O(n)!',
+      'Monotonic stack: decreasing/increasing order for "next greater/smaller element"',
+      'Deque: sliding window max/min in O(n) — maintains useful candidates only',
+      'BFS always uses a queue. DFS always uses a stack (or recursion).',
+    ]},
+  ],
 };
